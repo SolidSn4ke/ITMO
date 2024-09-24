@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="index.css">
+    <script defer src="index.js"></script>
+</head>
+
+<body>
+    <div id="container">
+
+        <header>
+            <h1>Кузьмин Артемий Андреевич P3214 408941</h1>
+        </header>
+
+        <div id="wrapper" class="row">
+            <div id="left_input" class="column">
+                <p>
+                    x - координата точки по оси ox<br>
+                    <input type="radio" name="x" value="-5">-5<br>
+                    <input type="radio" name="x" value="-4">-4<br>
+                    <input type="radio" name="x" value="-3">-3<br>
+                    <input type="radio" name="x" value="-2">-2<br>
+                    <input type="radio" name="x" value="-1">-1<br>
+                    <input type="radio" name="x" value="0" required>0<br>
+                    <input type="radio" name="x" value="1">1<br>
+                    <input type="radio" name="x" value="2">2<br>
+                    <input type="radio" name="x" value="3">3<br>
+                    <label class="error" id="x_error"></label>
+                </p>
+                <p>
+                    y - координата точки по оси oy (от -5 до 3)<br>
+                    <input type="text" id="y" name="y" placeholder="[-5..3]">
+                    <label for="y" class="error" id="y_error"></label>
+                </p>
+                <p>
+                    R - величина R на графике (от 1 до 4)<br>
+                    <input type="text" id="R" name="R" placeholder="[1..4]">
+                    <label for="R" class="error" id="R_error"></label>
+                </p>
+                <p>
+                    <input type="button" value="Подтвердить" id="confirm">
+                </p>
+            </div>
+
+            <div id="center_graphic" class="column">
+                <svg width="300" height="300" id="graph">
+                    <path d="M90 150
+                    A 60 60, 0, 0, 1, 150 90
+                    L 150 150 Z"
+                    fill="lightblue" stroke="none" />
+                    <rect x="150" y="150" width="120" height="120" fill="lightblue" />
+                    <polygon points="150,150 150,90 270,150" fill="lightblue" />
+                    <line x1="150" y1="0" x2="150" y2="300" stroke="black" />
+                    <line x1="300" y1="150" x2="290" y2="155" stroke="black" />
+                    <line x1="300" y1="150" x2="290" y2="145" stroke="black" />
+                    <line x1="0" y1="150" x2="300" y2="150" stroke="black" />
+                    <line x1="150" y1="0" x2="145" y2="10" stroke="black" />
+                    <line x1="150" y1="0" x2="155" y2="10" stroke="black" />
+                    <line x1="210" y1="145" x2="210" y2="155" stroke="black" />
+                    <line x1="270" y1="145" x2="270" y2="155" stroke="black" />
+                    <line x1="90" y1="145" x2="90" y2="155" stroke="black" />
+                    <line x1="30" y1="145" x2="30" y2="155" stroke="black" />
+                    <line x1="145" y1="270" x2="155" y2="270" stroke="black" />
+                    <line x1="145" y1="210" x2="155" y2="210" stroke="black" />
+                    <line x1="145" y1="90" x2="155" y2="90" stroke="black" />
+                    <line x1="145" y1="30" x2="155" y2="30" stroke="black" />
+                    <text x="280" y="145" fill="black">x</text>
+                    <text x="155" y="10" fill="black">y</text>
+                    <circle cx="150" cy="150" r="0" fill="red" />
+                  </svg>
+            </div>
+
+            <div id="right_table" class="column">
+                <table id="results">
+                    <caption>Результаты</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">№</th>
+                            <th scope="col">Попадание</th>
+                            <th scope="col">x</th>
+                            <th scope="col">y</th>
+                            <th scope="col">R</th>
+		   	                <th scope="col">Время</th>
+			                <th scope="col">Работа</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <label for="results" class="error" id="ser_error"></label>
+            </div>
+        </div>
+
+
+    </div>
+</body>
+
+</html>
