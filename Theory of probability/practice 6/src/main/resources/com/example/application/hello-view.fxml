@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.application.HelloController">
+    <center>
+        <VBox>
+            <padding>
+                <Insets bottom="2.0" left="20.0" right="20.0" top="2.0"/>
+            </padding>
+
+            <Label text="Выборка:"/>
+            <Label fx:id="sampling"/>
+            <Label text="Вариационный ряд:"/>
+            <Label fx:id="variationalSeries"/>
+            <Label text="Размах:"/>
+            <Label fx:id="range"/>
+            <Label fx:id="extreme"/>
+            <Label text="Статистический ряд:"/>
+            <TableView fx:id="statisticalSeries" maxHeight="50"/>
+            <Label fx:id="moments"/>
+            <Label text="Интервальный статистический ряд"/>
+            <TableView fx:id="ISSTable" maxHeight="50"/>
+
+            <HBox spacing="20" alignment="CENTER">
+                <Label fx:id="distribution" />
+                <Canvas fx:id="distributionFunction" height="220" width="330"/>
+                <Canvas fx:id="polygon" height="220" width="330"/>
+                <Canvas fx:id="histogram" height="220" width="330"/>
+            </HBox>
+            <HBox spacing="250" alignment="TOP_RIGHT">
+                <padding>
+                    <Insets right="150"/>
+                </padding>
+                <Label text="Функция распределения"/>
+                <Label text="Полигон распределения"/>
+                <Label text="Гистограмма"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
