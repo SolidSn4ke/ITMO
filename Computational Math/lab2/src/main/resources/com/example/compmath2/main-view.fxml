@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.compmath2.InputController">
+    <left>
+        <VBox alignment="CENTER" spacing="5.0" fx:id="controls">
+            <padding>
+                <Insets bottom="5.0" left="20.0" right="20.0" top="5.0"/>
+            </padding>
+
+            <ComboBox fx:id="taskSelector">
+
+            </ComboBox>
+
+            <Label text="Выберите метод для нахождения корня" fx:id="methodsLabel"/>
+            <VBox fx:id="methodsGroup">
+                <RadioButton fx:id="bisection" text="Метод бисекции"/>
+                <RadioButton fx:id="secant" text="Метод секущих"/>
+                <RadioButton fx:id="simpleIteration" text="Метод простой итерации"/>
+            </VBox>
+
+            <Label text="Выберите функцию, для которой необходимо вычислить корень" fx:id="functionsLabel"/>
+            <VBox fx:id="functionsGroup">
+                <RadioButton fx:id="f1" text="2 * x^3 + 3,41 * x^2 - 23,74 * x + 2,95"/>
+                <RadioButton fx:id="f2" text="sin(e^x)"/>
+                <RadioButton fx:id="f3" text="tan(sin(x) - cos(x))"/>
+            </VBox>
+
+            <Label text="Выберите систему, которую необходимо решить" fx:id="systemsLabel"/>
+            <VBox fx:id="systemsGroup">
+                <RadioButton fx:id="s1"/>
+                <RadioButton fx:id="s2"/>
+            </VBox>
+
+            <Label text="Левая граница промежутка" fx:id="leftBorderLabel"/>
+            <TextField fx:id="leftBorder"/>
+            <Label text="Правая граница промежутка" fx:id="rightBorderLabel"/>
+            <TextField fx:id="rightBorder"/>
+            <Label text="Точность" fx:id="precisionLabel"/>
+            <TextField fx:id="precision"/>
+            <Label text="Название файла, из которого будут считаны данные" fx:id="fileInLabel"/>
+            <TextField fx:id="fileIn"/>
+            <Label text="Название файла, в который будет записан результат" fx:id="fileOutLabel"/>
+            <TextField fx:id="fileOut"/>
+            <Button fx:id="submit" onAction="#onSubmitButtonClick" text="Найти корень"/>
+            <Label fx:id="x0Label" text="Начальное приближение по x"/>
+            <TextField fx:id="x0"/>
+            <Label fx:id="y0Label" text="Начальное приближение по y"/>
+            <TextField fx:id="y0"/>
+            <Button fx:id="submitSystem" onAction="#onSubmitSystemButtonClick" text="Найти решение"/>
+            <Label fx:id="errorLabel" textFill="red"/>
+        </VBox>
+    </left>
+    <center>
+        <Canvas fx:id="canvas" width="500" height="500"/>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER">
+            <padding>
+                <Insets bottom="50" right="20" left="20"/>
+            </padding>
+            <TextArea fx:id="logs" minWidth="1200"/>
+        </HBox>
+    </bottom>
+</BorderPane>
+
