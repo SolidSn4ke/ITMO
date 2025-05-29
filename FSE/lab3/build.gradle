@@ -1,0 +1,391 @@
+import org.xml.sax.ErrorHandler
+import org.xml.sax.SAXParseException
+
+import javax.xml.parsers.DocumentBuilderFactory
+import java.security.MessageDigest
+
+plugins {
+    id "com.github.node-gradle.node" version "5.0.0"
+    id 'java'
+    id 'war'
+}
+
+project(':back') {
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+    group = 'org.example.demo'
+    version = 'unspecified'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation("junit:junit:4.13.2")
+        testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
+        testImplementation('org.mockito:mockito-core:2.21.0')
+        compileOnly 'javax:javaee-web-api:8.0.1'
+        implementation 'org.hibernate:hibernate-core:5.6.14.Final'
+        implementation 'org.hibernate:hibernate-entitymanager:5.6.14.Final'
+        implementation 'org.glassfish.jersey.core:jersey-server:2.39'
+        implementation 'org.glassfish.jersey.containers:jersey-container-servlet-core:2.39'
+        implementation 'org.glassfish.jersey.inject:jersey-hk2:2.39'
+        testImplementation 'org.seleniumhq.selenium:selenium-java:4.10.0'
+    }
+
+    test {
+        useJUnitPlatform()
+        exclude '**/functional/**'
+    }
+
+    tasks.register('functionalTest', Test) {
+        useJUnitPlatform()
+        include '**/functional/**'
+        exclude '**/module/**'
+    }
+
+    war {
+        archiveFileName.set 'web4.war'
+        if (gradle.startParameter.taskNames.any {
+            it == 'doc'
+        }) {
+            dependsOn javadoc
+            from('build/docs')
+            manifest {
+                from('MANIFEST.MF')
+            }
+        }
+    }
+
+    compileJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
+    javadoc.options.encoding = 'UTF-8'
+}
+
+project(':front') {
+    apply plugin: "com.github.node-gradle.node"
+
+    tasks.register('buildFront', NpmTask) {
+        args = ['run', 'build']
+        workingDir = file("${projectDir}")
+    }
+
+    tasks.register('packFront', NpmTask) {
+        dependsOn 'buildFront'
+        args = ['run', 'pack']
+        workingDir = file("${projectDir}")
+    }
+}
+
+def properties = new Properties()
+file('gradle.properties').withDataInputStream { properties.load(it) }
+
+tasks.register('compile') {
+    description = 'Компиляция исходных кодов проекта'
+    group = 'lab'
+    dependsOn ':back:compileJava', ':front:buildFront'
+}
+
+tasks.register('_build') {
+    description = 'Компиляция исходных кодов проекта и их упаковка в исполняемые war-архивы'
+    group = 'lab'
+    dependsOn compile, ':back:war', ':front:packFront', _test, functionalTest
+}
+
+tasks.register('_clean') {
+    description = 'Удаление скомпилированных классов проекта и всех временных файлов'
+    group = 'lab'
+    delete 'front/build', 'back/build'
+}
+
+tasks.register('_test') {
+    description = 'Запуск junit-тестов проекта'
+    group = 'lab'
+    dependsOn ':back:test'
+}
+
+tasks.register('music') {
+    description = 'Воспроизведение музыки по завершению сборки'
+    group = 'lab'
+    dependsOn _build
+    doLast {
+        new ProcessBuilder('cmd', '/c', 'start', '/B', 'BuildSuccess.mp3').start()
+    }
+}
+
+tasks.register('scp') {
+    description = 'Перемещение собранного проекта по scp на выбранный сервер по завершению сборки'
+    group = 'lab'
+    dependsOn _build
+
+    doLast {
+        def user = properties.userName
+        def server = properties.server
+        def remoteDir = properties.remoteDir
+        def password = System.getenv('DEPLOY_PASSWORD')
+
+        try {
+            new ProcessBuilder('pscp', '-pw', password, '-scp', '-P', '2222', 'back/build/libs/back.war', 'front/build/front.war', user + '@' + server + ':' + remoteDir).start()
+            println "Проект перемещен на сервер $server"
+        } catch (Exception e) {
+            println "Не удалось передать по scp: ${e.message}"
+        }
+    }
+}
+
+tasks.register('native2ascii') {
+    description = 'Преобразование native2ascii для копий файлов локализации'
+    group = 'lab'
+
+    doLast {
+        new ProcessBuilder('native2ascii', 'back/src/main/resources/server_response_Ru_ru.properties', 'back/src/main/resources/server_response_Ru_ru_ascii.properties').start()
+    }
+}
+
+tasks.register('doc') {
+    description = 'Добавление в MANIFEST.MF MD5 и SHA-1 файлов проекта, а также генерация и добавление в архив javadoc по всем классам проекта'
+    group = 'lab'
+
+    def files = fileTree('back/src/main/java')
+    def md5 = MessageDigest.getInstance("MD5")
+    def sha1 = MessageDigest.getInstance("SHA-1")
+    def manifest_file = file('back/MANIFEST.MF')
+    manifest_file.createNewFile()
+    def hexes = [:]
+
+    files.each { f ->
+        def br = new BufferedReader(new FileReader(f))
+        def s = ''
+        br.readLines().each { line ->
+            s += line
+        }
+
+        def md5_hex = ''
+        md5.digest(s.getBytes()).each { b ->
+            md5_hex += String.format("%02x", b)
+        }
+
+        def sha1_hex = ''
+        sha1.digest(s.getBytes()).each { b ->
+            sha1_hex += String.format("%02x", b)
+        }
+
+        hexes["MD5-${f.name.replace('.java', '')}"] = md5_hex
+        hexes["SHA-1-${f.name.replace('.java', '')}"] = sha1_hex
+    }
+
+    def bw = new BufferedWriter(new FileWriter(manifest_file))
+    hexes.each { k, v ->
+        bw.write("$k: $v\n")
+    }
+    bw.flush()
+    doc.finalizedBy(':back:war')
+}
+
+tasks.register('xml') {
+    description = 'Валидация всех xml-файлов в проекте'
+    group = 'lab'
+
+    def files = fileTree("${projectDir}")
+
+    files.matching {
+        include '**/*.xml'
+        exclude '**/.idea/**', '**/build/**'
+    }.each { f ->
+        def builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        builder.setErrorHandler(new ErrorHandler() {
+            void warning(SAXParseException e) {}
+
+            void error(SAXParseException e) {}
+
+            void fatalError(SAXParseException e) {}
+        })
+        try {
+            builder.parse(f)
+            println "Файл ${f.name} - валидный"
+        } catch (Exception e) {
+            println "Файл ${f.name} - содержит ошибки\n${e.message}"
+        }
+    }
+}
+
+tasks.register('report') {
+    description = 'В случае успешного прохождения тестов сохраняет отчет junit в формате xml, добавляет его в репозиторий git и выполняет commit'
+    group = 'lab'
+
+    def noErrors = false
+
+    try {
+        exec {
+            commandLine 'gradlew.bat', '_test'
+        }
+        noErrors = true
+    } catch (Exception e) {
+        println "Не все тесты были пройдены"
+    }
+
+    if (noErrors) {
+        def dir = file('back/build/test-results')
+
+        copy {
+            from dir
+            into 'back/reports'
+            include '**/*.xml'
+        }
+        exec {
+            commandLine 'git', 'add', 'back/reports'
+        }
+        exec {
+            commandLine 'git', 'commit', '-m', 'Gradle \"_test\" task commit'
+        }
+    }
+}
+
+tasks.register('alt') {
+    description = 'Создаёт альтернативную версию программы с измененными именами переменных и классов (используя задание replace/replaceregexp в файлах параметров) и упаковывает её в war-архив'
+    group = 'lab'
+
+    finalizedBy _build
+
+    def replacements = [:]
+    file('back/src/main/resources/alt.properties').readLines().each {
+        def arg = it.split('=')
+        if (arg.length > 1) {
+            replacements[arg[0]] = arg[1]
+        }
+    }
+
+    fileTree('back/src/main/java').each { f ->
+        if (f.isFile()) {
+            def content = f.getText('UTF-8')
+            replacements.each { k, v ->
+                content = content.replaceAll(k.toString(), v.toString())
+                if (f.name.replace('.java', '') == k.toString()) {
+                    def new_file = new File(f.path.replace(k.toString(), v.toString()))
+                    f.renameTo(new_file)
+                    delete f.path
+                }
+            }
+            f.text = content
+        }
+    }
+}
+
+tasks.register('env') {
+    description = 'Осуществляет сборку и запуск программы в альтернативных окружениях'
+    group = 'lab'
+
+    doLast {
+        exec {
+            environment 'JAVA_HOME', "${properties.javaHome}/${properties.javaVersion}"
+            commandLine 'gradlew.bat', 'build'
+        }
+        exec {
+            commandLine 'C:\\Users\\artsu\\Downloads\\wildfly-20.0.1.Final\\wildfly-20.0.1.Final\\bin\\standalone.bat'
+        }
+    }
+}
+
+tasks.register('diff') {
+    description = 'Осуществляет проверку состояния рабочей копии, и, если изменения касаются классов, указанных в файле параметров выполняет commit в репозиторий git'
+    group = 'lab'
+
+    def diff = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'status', '--porcelain'
+        standardOutput diff
+    }
+
+    def trackedFiles = properties.diffTrack.split(',')
+    if (trackedFiles.any { f ->
+        diff.toString().contains(f.toString())
+    }) {
+        exec {
+            commandLine 'git', 'add', '.'
+        }
+        exec {
+            commandLine 'git', 'commit', '-m', "Gradle \"diff\" task commit\nTracked files: ${trackedFiles.toString()}"
+        }
+    } else println "Ни один из отслеживаемых файлов не был изменен\nTracked files: ${trackedFiles.toString()}"
+}
+
+tasks.register('history') {
+    description = 'Если проект не удаётся скомпилировать (цель compile), загружается предыдущая версия из репозитория git. Операция повторяется до тех пор, пока проект не удастся собрать, либо не будет получена самая первая ревизия из репозитория. Если такая ревизия найдена, то формируется файл, содержащий результат операции diff для всех файлов, измёненных в ревизии, следующей непосредственно за последней работающей'
+    group = 'lab'
+
+    while (true) {
+        try {
+            exec {
+                commandLine 'gradlew.bat', 'compile'
+            }
+            break
+        } catch (Exception ignored) {
+            println "Скомпилировать проект не удалось. Откат на предыдущую ревизию"
+            exec {
+                commandLine 'git', 'diff', 'HEAD', 'HEAD~1'
+                standardOutput = new FileOutputStream('back/build/history_diff')
+            }
+            exec {
+                commandLine 'git', 'checkout', "HEAD~1"
+            }
+        }
+    }
+}
+
+tasks.register('team') {
+    description = 'Осуществляет получение из git-репозитория 4 предыдущих ревизий, их сборку (по аналогии с основной) и упаковку получившихся war-файлов в zip-архив'
+    group = 'lab'
+
+    def currentDir = file("${buildDir}/team")
+    currentDir.mkdirs()
+
+    def current_branch = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--abbrev-ref', 'HEAD'
+        standardOutput = current_branch
+    }
+
+    if (current_branch.toString().trim() != 'team') {
+        exec {
+            commandLine 'git', 'branch', '-f', 'team', 'HEAD'
+        }
+    }
+
+    for (int i = 1; i <= 4; i++) {
+        currentDir = file("${buildDir}/team/rev-$i")
+        currentDir.mkdirs()
+        exec {
+            commandLine 'gradlew.bat', '_build'
+        }
+        copy {
+            from "$projectDir"
+            into currentDir
+            include "back/build/libs/*.war", "front/build/*.war"
+        }
+        exec {
+            commandLine 'git', 'checkout', 'HEAD~1'
+        }
+    }
+    currentDir = file("${buildDir}/team")
+    ant.zip(destfile: "${buildDir}/team.zip") {
+        fileset(dir: currentDir)
+    }
+    exec {
+        commandLine 'git', 'checkout', 'team'
+    }
+}
+
+tasks.register('functionalTest', Test) {
+    group = 'lab'
+    dependsOn ':back:functionalTest'
+}
+
+tasks.register('deploy'){
+    group = 'lab'
+    dependsOn _build
+
+    exec {
+        commandLine 'C:\\Users\\artsu\\Downloads\\wildfly-20.0.1.Final\\wildfly-20.0.1.Final\\bin\\standalone.bat'
+    }
+}
