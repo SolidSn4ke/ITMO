@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+    <persistence-unit name="examplePU">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <jta-data-source>java:jboss/exampleDS</jta-data-source>
+        <class>com.example.back.entities.WorkerEntity</class>
+        <class>com.example.back.entities.OrganizationEntity</class>
+        <class>com.example.back.entities.PersonEntity</class>
+        <class>com.example.back.entities.LocationEntity</class>
+        <class>com.example.back.entities.AddressEntity</class>
+        <class>com.example.back.entities.CoordinatesEntity</class>
+        <properties>
+
+            <property name="eclipselink.target-server" value="WildFly"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="false"/>
+
+            <!-- EclipseLink specific properties -->
+            <property name="eclipselink.logging.level" value="FINER"/>
+            <property name="eclipselink.ddl-generation" value="none"/>
+        </properties>
+    </persistence-unit>
+</persistence>

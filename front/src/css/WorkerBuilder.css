@@ -1,0 +1,43 @@
+.worker-builder {
+    flex: 1;
+    width: 100%;
+    background-color: #f5f5f5;
+    padding: 16px;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    margin: auto;
+    font-family: monospace;
+    font-size: large;
+    text-align: center;
+}
+
+.scrollable-div {
+    overflow-y: scroll;
+    max-height: 470px;
+}
+
+#quick-view-buttons {
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+}
+
+#profile-picture {
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+    display: flex;
+}
+
+.input-field, select {
+    font-family: monospace;
+    border-radius: 8px;
+    border: 2px solid #dddddd;
+    margin: 2px;
+    padding: 2px;
+    width: 60%;
+}
+
+.input-field:focus {
+    border: 2px solid #00b1fd;
+}

@@ -1,0 +1,52 @@
+import React, {useEffect} from 'react';
+import '../css/App.css';
+import Table from "./Table"
+import QuickView from "./QuickView";
+import WorkerBuilder from "./WorkerBuilder";
+import {useAppDispatch, useAppSelector} from "../ts/redux/hooks";
+import axios from "axios";
+import {updateItems} from "../ts/redux/workerSlice";
+
+
+function Main() {
+    const viewMode = useAppSelector((state) => state.viewMode)
+    const items = useAppSelector((state) => state.items)
+    const workerView = useAppSelector((state) => state.workerView)
+    const updatable = useAppSelector((state) => state.updatable)
+    const dispatch = useAppDispatch()
+
+
+    useEffect(() => {
+        if (updatable) {
+            const getWorkers = async () => {
+                try {
+                    let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/view-workers", null, {withCredentials: true})
+                    if (response.status === 200) {
+                        dispatch(updateItems(response.data))
+                    }
+                } catch (e) {
+                    console.log(e)
+                }
+            }
+
+            const interval = window.setInterval(getWorkers, 5000)
+            return () => {
+                window.clearInterval(interval)
+            }
+        }
+    })
+
+    return (
+        <div className="Main">
+            <header className="App-header"></header>
+            <div className="row">
+                <div className="left-column">
+                    <Table items={items} controls={true}></Table>
+                </div>
+                {viewMode ? <QuickView worker={workerView}/> : <WorkerBuilder workerTemplate={workerView}/>}
+            </div>
+        </div>
+    );
+}
+
+export default Main;
