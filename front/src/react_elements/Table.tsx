@@ -15,7 +15,7 @@ import InputField from "./InputField";
 import Selector from "./Selector";
 import {toString} from "../ts/data/Organization";
 import star from '../resources/star.svg'
-import {showErrorNotification} from "./Main";
+import {showErrorNotification, showInfoNotification} from "./Main";
 
 interface WorkerWrapper {
     items: Worker[]
@@ -112,7 +112,6 @@ function Table({items, controls}: WorkerWrapper) {
     const handleSendOrganization = async (event: Event) => {
         event.preventDefault()
         const form: HTMLFormElement = document.getElementById('modal4') as HTMLFormElement
-
         if (form.checkValidity() && selectedOrganizationId) {
             try {
                 let response = await axios.post(
@@ -122,6 +121,11 @@ function Table({items, controls}: WorkerWrapper) {
                     },
                     {withCredentials: true}
                 )
+                if (response.status === 200) {
+                    showInfoNotification('Успешное добавление организации')
+                    setSpecial4(false)
+                    setSpecial5(false)
+                }
             } catch (e) {
                 console.log(e)
             }
@@ -150,6 +154,9 @@ function Table({items, controls}: WorkerWrapper) {
         const orgMap = new Map<number, string>();
         items.forEach(item => {
             if (item.organization && item.organization.id) {
+                if (selectedOrganizationId === null) {
+                    setSelectedOrganizationId(item.organization.id)
+                }
                 orgMap.set(item.organization.id, toString(item.organization));
             }
         });

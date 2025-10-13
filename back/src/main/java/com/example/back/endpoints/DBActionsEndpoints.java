@@ -44,7 +44,7 @@ public class DBActionsEndpoints {
     @Path("/delete-worker")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(Integer id) {
+    public Response delete(Long id) {
         if (workerBean.delete(id))
             return Response.ok().build();
         else

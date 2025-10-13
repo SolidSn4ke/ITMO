@@ -15,7 +15,10 @@
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="false"/>
 
-            <!-- EclipseLink specific properties -->
+            <property name="eclipselink.cascade-persist" value="true"/>
+            <property name="eclipselink.cascade-remove" value="true"/>
+            <property name="eclipselink.orphan-removal" value="true"/>
+
             <property name="eclipselink.logging.level" value="FINER"/>
             <property name="eclipselink.ddl-generation" value="none"/>
         </properties>

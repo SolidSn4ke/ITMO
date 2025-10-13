@@ -1,7 +1,6 @@
 package com.example.back.ejb;
 
-import com.example.back.entities.OrganizationEntity;
-import com.example.back.entities.WorkerEntity;
+import com.example.back.entities.*;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.*;
 import jakarta.validation.ConstraintViolationException;
@@ -14,6 +13,10 @@ public class WorkerEJB {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
 
+        if (em.find(PersonEntity.class, worker.getPerson().getPassportID()) != null) {
+            return "Человек с таким паспортом уже существует!";
+        }
+
         try {
             em.merge(worker);
             em.close();
@@ -25,17 +28,43 @@ public class WorkerEJB {
         return "OK";
     }
 
-    public String deleteById(Integer id) {
+    public String deleteById(Long id) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
 
         try {
-            Query query = em.createQuery("delete from WorkerEntity entity where entity.id=:id");
-            query.setParameter("id", id);
-            if (query.executeUpdate() > 0)
-                return "OK";
-            else return "FAIL";
+            WorkerEntity worker = em.find(WorkerEntity.class, id);
 
+            CoordinatesEntity coordinates = worker.getCoordinates();
+            OrganizationEntity organization = worker.getOrganization();
+            PersonEntity person = worker.getPerson();
+
+            worker.setOrganization(null);
+            em.remove(worker);
+
+            if (organization != null && em.createQuery("select entity from WorkerEntity entity where entity.organization.id = :organizationID").setParameter("organizationID", organization.getId()).getResultList().size() == 0) {
+                AddressEntity address = organization.getOfficialAddress();
+                em.remove(organization);
+
+                if (em.createQuery("select entity from PersonEntity entity where entity.location.x = :x and entity.location.y = :y and entity.location.z = :z").setParameter("x", address.getTown().getX()).setParameter("y", address.getTown().getY()).setParameter("z", address.getTown().getZ()).getResultList().size() == 0) {
+                    em.remove(address);
+                }
+            }
+
+            if (em.createQuery("select entity from WorkerEntity entity where entity.coordinates.x = :x and entity.coordinates.y = :y").setParameter("x", coordinates.getX()).setParameter("y", coordinates.getY()).getResultList().size() == 0) {
+                em.remove(coordinates);
+            }
+
+            LocationEntity location = person.getLocation();
+            person.setLocation(null);
+            em.remove(person);
+
+            if (location != null && em.createQuery("select entity from AddressEntity entity where entity.town.x = :x and entity.town.y = :y and entity.town.z = :z").setParameter("x", location.getX()).setParameter("y", location.getY()).setParameter("z", location.getZ()).getResultList().size() == 0 &&
+                    em.createQuery("select entity from PersonEntity entity where entity.location.x = :x and entity.location.y = :y and entity.location.z = :z").setParameter("x", location.getX()).setParameter("y", location.getY()).setParameter("z", location.getZ()).getResultList().size() == 0) {
+                em.remove(location);
+            }
+
+            return "OK";
         } catch (QueryTimeoutException e) {
             return e.getMessage();
         } finally {

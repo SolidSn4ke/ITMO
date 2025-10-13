@@ -24,7 +24,7 @@ public class WorkerEntity {
     @NotBlank
     private String name;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH, CascadeType.PERSIST})
     @NotNull
     @Valid
     private CoordinatesEntity coordinates;
@@ -33,7 +33,7 @@ public class WorkerEntity {
     private LocalDate creationDate;
 
     @Valid
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "organizationID")
     private OrganizationEntity organization;
 
@@ -55,7 +55,7 @@ public class WorkerEntity {
 
     @Valid
     @NotNull
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "passportID")
     private PersonEntity person;
 

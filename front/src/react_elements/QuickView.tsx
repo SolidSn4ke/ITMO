@@ -35,11 +35,16 @@ function QuickView({worker}: QuickViewProps) {
         if (worker === null) {
             showErrorNotification('Невозможно удалить: Работник не выбран')
         } else {
-            const response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/delete-worker", {id: worker?.id}, {withCredentials: true})
-            if (response.status === 200) {
-                showInfoNotification('Работник удален!')
-                dispatch(updateWorkerView(null))
+            try {
+                const response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/delete-worker", {id: worker?.id}, {withCredentials: true})
+                if (response.status === 200) {
+                    showInfoNotification('Работник удален!')
+                    dispatch(updateWorkerView(null))
+                }
+            } catch (e) {
+                console.log(e)
             }
+
         }
     }
 

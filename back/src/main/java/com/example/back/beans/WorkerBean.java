@@ -24,7 +24,7 @@ public class WorkerBean {
 
     }
 
-    public boolean delete(Integer id) {
+    public boolean delete(Long id) {
         this.message = workerEJB.deleteById(id);
         return this.message.equals("OK");
     }

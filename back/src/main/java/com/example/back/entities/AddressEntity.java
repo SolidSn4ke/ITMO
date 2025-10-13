@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Table(name = "address")
 public class AddressEntity implements Serializable {
     @Id
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @Valid
     private LocationEntity town;
 

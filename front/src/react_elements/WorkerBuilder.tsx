@@ -22,7 +22,7 @@ import Coordinates from "../ts/data/Coordinates";
 import Person from "../ts/data/Person";
 import Color from "../ts/data/Color";
 import Country from "../ts/data/Country";
-import {showInfoNotification} from "./Main";
+import {showErrorNotification, showInfoNotification} from "./Main";
 
 interface CreatedLocation {
     x: number,
@@ -208,6 +208,8 @@ function WorkerBuilder({workerTemplate}: WorkerBuilderProps) {
                     }
                     dispatch(updateViewMode(true))
                     dispatch(updateBuildMode(false))
+                } else {
+                    showErrorNotification(response.data)
                 }
             } catch (e) {
                 console.log(e)

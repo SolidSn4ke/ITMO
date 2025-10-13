@@ -18,7 +18,7 @@ public class PersonEntity {
     private Color hairColor;
 
     @Valid
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH, CascadeType.PERSIST})
     private LocationEntity location;
 
     @Id
