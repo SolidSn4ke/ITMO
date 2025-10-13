@@ -3,7 +3,7 @@ import InputField from "./InputField";
 import {LocationBuilder} from "./WorkerBuilder"
 import Selector from "./Selector";
 import OrganizationType, {organizationTypeToString} from "../ts/data/OrganizationType";
-import {useAppDispatch, useAppSelector} from "../ts/redux/hooks";
+import {useAppSelector} from "../ts/redux/hooks";
 import Organization from "../ts/data/Organization";
 
 interface CreatedOrganization {
@@ -59,8 +59,6 @@ function OrganizationBuilder({organization, handleInputChange, handleSelectChang
         handleSelectChange(e)
     }
 
-    const dispatch = useAppDispatch()
-
     return (
         <div>
             <InputField name={"street"} label={"Улица"} type={"text"} onChange={handleInputChangeOrganization}
@@ -80,7 +78,7 @@ function OrganizationBuilder({organization, handleInputChange, handleSelectChang
                         onChange={handleInputChangeOrganization}
                         value={updateMode ? createdOrganization.organization_rating : undefined}/>
             <Selector name={'organization_type'} items={organizationTypeToString} label={"Тип организации"}
-                      required={true} onChangeAction={handleSelectChange}
+                      required={true} onChangeAction={handleSelectChangeOrganization}
                       selectedValue={createdOrganization.organization_type}/>
         </div>
     )

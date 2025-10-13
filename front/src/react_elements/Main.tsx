@@ -6,7 +6,29 @@ import WorkerBuilder from "./WorkerBuilder";
 import {useAppDispatch, useAppSelector} from "../ts/redux/hooks";
 import axios from "axios";
 import {updateItems} from "../ts/redux/workerSlice";
+import {toast, ToastContainer} from "react-toastify";
 
+export function showErrorNotification(message: string) {
+    toast.error(message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+    });
+}
+
+export function showInfoNotification(message: string) {
+    toast.info(message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+    });
+}
 
 function Main() {
     const viewMode = useAppSelector((state) => state.viewMode)
@@ -39,6 +61,8 @@ function Main() {
     return (
         <div className="Main">
             <header className="App-header"></header>
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false}
+                            newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover/>
             <div className="row">
                 <div className="left-column">
                     <Table items={items} controls={true}></Table>

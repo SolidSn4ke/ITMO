@@ -15,6 +15,7 @@ import InputField from "./InputField";
 import Selector from "./Selector";
 import {toString} from "../ts/data/Organization";
 import star from '../resources/star.svg'
+import {showErrorNotification} from "./Main";
 
 interface WorkerWrapper {
     items: Worker[]
@@ -91,7 +92,8 @@ function Table({items, controls}: WorkerWrapper) {
     }
 
     const handleEnrollWorker = () => {
-        if (workerView.id === 0 || workerView.organization !== undefined) {
+        if (workerView === null || workerView.id === 0 || workerView.organization !== undefined) {
+            showErrorNotification('Невозможно выполнить спец. функцию: Работник не выбран')
             return
         }
         setSpecial4(true)
@@ -99,7 +101,8 @@ function Table({items, controls}: WorkerWrapper) {
     }
 
     const handleMoveWorker = () => {
-        if (workerView.id === 0 || workerView.organization === undefined) {
+        if (workerView === null || workerView.id === 0 || workerView.organization === undefined) {
+            showErrorNotification('Невозможно выполнить спец. функцию: Работник не выбран')
             return
         }
         setSpecial5(true)
@@ -186,7 +189,9 @@ function Table({items, controls}: WorkerWrapper) {
             <Modal isOpen={special4} onClose={() => setSpecial4(false)}>
                 <form id={'modal4'}>
                     <div style={{marginBottom: '20px'}}>
-                        <p><strong>Работник:</strong> {workerView.name} (ID: {workerView.id})</p>
+                        <p>
+                            <strong>Работник:</strong> {workerView === null ? '' : workerView.name} (ID: {workerView === null ? '' : workerView.id})
+                        </p>
                     </div>
                     <Selector
                         required={true} name={"organization"} items={getUniqueOrganizations()}
@@ -201,7 +206,9 @@ function Table({items, controls}: WorkerWrapper) {
             <Modal isOpen={special5} onClose={() => setSpecial5(false)}>
                 <form id={'modal4'}>
                     <div style={{marginBottom: '20px'}}>
-                        <p><strong>Работник:</strong> {workerView.name} (ID: {workerView.id})</p>
+                        <p>
+                            <strong>Работник:</strong> {workerView === null ? '' : workerView.name} (ID: {workerView === null ? '' : workerView.id})
+                        </p>
                     </div>
                     <Selector
                         required={true} name={"organization"} items={getUniqueOrganizations()}

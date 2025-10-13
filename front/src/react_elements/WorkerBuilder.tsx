@@ -22,6 +22,7 @@ import Coordinates from "../ts/data/Coordinates";
 import Person from "../ts/data/Person";
 import Color from "../ts/data/Color";
 import Country from "../ts/data/Country";
+import {showInfoNotification} from "./Main";
 
 interface CreatedLocation {
     x: number,
@@ -165,7 +166,7 @@ function WorkerBuilder({workerTemplate}: WorkerBuilderProps) {
         if (locationRequired) {
             dispatch(updateLocationRequired(false))
         }
-
+        showInfoNotification('Действие отменено')
     }
 
     const handleCreate = async (event: Event) => {
@@ -200,6 +201,11 @@ function WorkerBuilder({workerTemplate}: WorkerBuilderProps) {
                 }
                 let response = await axios.post(url, data, {withCredentials: true})
                 if (response.status === 200) {
+                    if (updateMode) {
+                        showInfoNotification('Данные о работнике обновлены!')
+                    } else {
+                        showInfoNotification('Работник добавлен!')
+                    }
                     dispatch(updateViewMode(true))
                     dispatch(updateBuildMode(false))
                 }

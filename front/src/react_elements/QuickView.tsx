@@ -8,8 +8,8 @@ import profile_placeholder from "../resources/profile_placeholder.svg"
 import axios from "axios";
 import {useAppDispatch} from "../ts/redux/hooks";
 import {updateBuildMode, updateViewMode, updateWorkerView} from "../ts/redux/workerSlice";
-import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import {showErrorNotification, showInfoNotification} from "./Main";
 
 interface QuickViewProps {
     worker: Worker | null
@@ -18,24 +18,13 @@ interface QuickViewProps {
 function QuickView({worker}: QuickViewProps) {
     const dispatch = useAppDispatch()
 
-    if (worker?.id === 0){
+    if (worker?.id === 0) {
         worker = null
-    }
-
-    function showNotification(message: string) {
-        toast.error(message, {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true
-        });
     }
 
     const handleUpdate = () => {
         if (worker === null) {
-            showNotification('Невозможно изменить: Работник не выбран')
+            showErrorNotification('Невозможно изменить: Работник не выбран')
         } else {
             dispatch(updateBuildMode(true))
             dispatch(updateViewMode(false))
@@ -44,10 +33,11 @@ function QuickView({worker}: QuickViewProps) {
 
     const handleDelete = async () => {
         if (worker === null) {
-            showNotification('Невозможно удалить: Работник не выбран')
+            showErrorNotification('Невозможно удалить: Работник не выбран')
         } else {
             const response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/delete-worker", {id: worker?.id}, {withCredentials: true})
             if (response.status === 200) {
+                showInfoNotification('Работник удален!')
                 dispatch(updateWorkerView(null))
             }
         }
@@ -55,12 +45,9 @@ function QuickView({worker}: QuickViewProps) {
 
     return (
         <div className={"quick-view"}>
-            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false}
-                            newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover/>
             <div id={"profile-picture"}>
                 <img src={profile_placeholder} alt={""}/>
             </div>
-
             <div className={"scrollable-div"}>
                 <div>id: <b>{worker?.id}</b></div>
                 <br/>
