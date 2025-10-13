@@ -92,8 +92,11 @@ function Table({items, controls}: WorkerWrapper) {
     }
 
     const handleEnrollWorker = () => {
-        if (workerView === null || workerView.id === 0 || workerView.organization !== undefined) {
+        if (workerView === null || workerView.id === 0) {
             showErrorNotification('Невозможно выполнить спец. функцию: Работник не выбран')
+            return
+        } else if (workerView.organization !== undefined) {
+            showErrorNotification('Невозможно выполнить спец. функцию: Выбранный работник уже работает в организации')
             return
         }
         setSpecial4(true)
@@ -101,8 +104,11 @@ function Table({items, controls}: WorkerWrapper) {
     }
 
     const handleMoveWorker = () => {
-        if (workerView === null || workerView.id === 0 || workerView.organization === undefined) {
+        if (workerView === null || workerView.id === 0) {
             showErrorNotification('Невозможно выполнить спец. функцию: Работник не выбран')
+            return
+        } else if (workerView.organization === undefined) {
+            showErrorNotification('Невозможно выполнить спец. функцию: Работник не устроен на работу в организацию')
             return
         }
         setSpecial5(true)
