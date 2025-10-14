@@ -36,7 +36,7 @@ class Worker {
         return {
             name: this.name,
             coordinates: this.coordinates,
-            organization: this.organization?.toJSON(),
+            organization: this.organization,
             salary: this.salary,
             rating: this.rating,
             startDate: this.startDate,

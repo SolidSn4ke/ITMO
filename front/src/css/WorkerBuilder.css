@@ -41,3 +41,10 @@
 .input-field:focus {
     border: 2px solid #00b1fd;
 }
+
+fieldset {
+    border-radius: 8px;
+    border: transparent;
+    margin: 5px;
+    padding: 5px;
+}

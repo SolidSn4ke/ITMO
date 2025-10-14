@@ -20,6 +20,7 @@ class Organization {
 
     public toJSON(): {} {
         return {
+            id: this.id,
             officialAddress: this.officialAddress,
             annualTurnover: this.annualTurnover,
             employeesCount: this.employeesCount,
@@ -45,7 +46,7 @@ class Organization {
 
 export function toString(org: Organization | null | undefined) {
     if (org === null || org === undefined) return ''
-    else return `type: ${org.organizationType}, address: {street: ${org.officialAddress.street}, zip-code: ${org.officialAddress.zipCode}, town: {x: ${org.officialAddress.town.x}, y: ${org.officialAddress.town.y}, z:${org.officialAddress.town.z}, name: ${org.officialAddress.town.name}}}, turnover: ${org.annualTurnover}, emploees: ${org.employeesCount}, rating: ${org.rating}`
+    else return `id: ${org.id}, type: ${org.organizationType}, address: {street: ${org.officialAddress.street}, zip-code: ${org.officialAddress.zipCode}, town: {x: ${org.officialAddress.town.x}, y: ${org.officialAddress.town.y}, z:${org.officialAddress.town.z}, name: ${org.officialAddress.town.name}}}, turnover: ${org.annualTurnover}, emploees: ${org.employeesCount}, rating: ${org.rating}`
 }
 
 export default Organization

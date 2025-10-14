@@ -13,7 +13,7 @@ import PersonBuilder from "./PersonBuilder";
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../ts/redux/hooks";
 import {updateBuildMode, updateLocationRequired, updateViewMode} from "../ts/redux/workerSlice";
-import Organization from "../ts/data/Organization";
+import Organization, {toString} from "../ts/data/Organization";
 import Address from "../ts/data/Address";
 import Location from "../ts/data/Location";
 import OrganizationType from "../ts/data/OrganizationType";
@@ -106,12 +106,14 @@ interface WorkerBuilderProps {
 }
 
 function WorkerBuilder({workerTemplate}: WorkerBuilderProps) {
+    const items: Worker[] = useAppSelector((state) => state.items)
     const locationRequired = useAppSelector((state) => state.locationRequired)
     const updateMode = useAppSelector((state) => state.updateMode)
 
     const dispatch = useAppDispatch()
 
     const [organizationRequired, setOrganizationRequired] = useState(false)
+    const [selectedOrganizationID, setSelectedOrganizationID] = useState<number | null>(null)
 
     const [createdWorker, setCreatedWorker] = useState<CreatedWorker>({
         name: updateMode ? workerTemplate.name : '',
@@ -169,6 +171,17 @@ function WorkerBuilder({workerTemplate}: WorkerBuilderProps) {
         showInfoNotification('Действие отменено')
     }
 
+    const findOrganizationById = (orgId: number | null): Organization | null => {
+        if (!orgId) return null;
+
+        // Ищем первого worker'а с нужной организацией и возвращаем его организацию
+        const workerWithOrg = items.find(worker =>
+            worker?.organization?.id === orgId
+        );
+
+        return workerWithOrg?.organization || null;
+    };
+
     const handleCreate = async (event: Event) => {
         event.preventDefault()
 
@@ -183,12 +196,17 @@ function WorkerBuilder({workerTemplate}: WorkerBuilderProps) {
         if (organizationRequired) {
             orgLocation = new Location(createdWorker.organization_location_x, createdWorker.organization_location_y, createdWorker.organization_location_z, createdWorker.organization_location_name)
             address = new Address(orgLocation, createdWorker.street, createdWorker.zip_code)
-            organisation = new Organization(null, address, createdWorker.employees_count, createdWorker.organization_rating, createdWorker.organization_type, createdWorker.annual_turnover)
-        } else organisation = null
+            organisation = new Organization(-1, address, createdWorker.employees_count, createdWorker.organization_rating, createdWorker.organization_type, createdWorker.annual_turnover)
+        } else {
+            organisation = findOrganizationById(selectedOrganizationID)
+            if (organisation !== null) {
+                organisation = new Organization(organisation.id, organisation.officialAddress, organisation.employeesCount, organisation.rating, organisation.organizationType, organisation.annualTurnover)
+            }
+        }
 
         worker = new Worker(0, createdWorker.name, coordinates, '', createdWorker.start_date, createdWorker.position, person, organisation, createdWorker.salary, createdWorker.rating, createdWorker.status);
 
-        if (form.checkValidity() && worker.validate()) {
+        if (form.checkValidity()) {
             let data: {}
 
             try {
@@ -217,19 +235,29 @@ function WorkerBuilder({workerTemplate}: WorkerBuilderProps) {
         } else form.reportValidity()
     }
 
-    const handleOrganizationCreation = () => {
-        if (organizationRequired) {
+    const handleOrganizationCreation = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.value === '0') {
             setOrganizationRequired(false)
-        } else setOrganizationRequired(true)
+        } else {
+            setOrganizationRequired(true)
+        }
     }
 
     useEffect(() => {
         if (updateMode && workerTemplate?.organization !== undefined) {
-            const c = document.getElementById('organization-checkbox') as HTMLInputElement
-            c.checked = true
             setOrganizationRequired(true)
         }
     }, [updateMode, workerTemplate?.organization])
+
+    const getUniqueOrganizations = () => {
+        const orgMap = new Map<number, string>();
+        items.forEach(item => {
+            if (item.organization && item.organization.id) {
+                orgMap.set(item.organization.id, toString(item.organization));
+            }
+        });
+        return orgMap;
+    };
 
     return (
         <div className={"worker-builder"}>
@@ -247,12 +275,30 @@ function WorkerBuilder({workerTemplate}: WorkerBuilderProps) {
                                 value={updateMode ? createdWorker.y : undefined}
                                 onChange={handleInputChange}/>
                     <div>
-                        Организация: <input id={'organization-checkbox'} type={"checkbox"}
-                                            onChange={handleOrganizationCreation}/>
+
+
+                        <fieldset>
+                            <legend>Организация:</legend>
+                            <br/>
+                            <input name={'organization'} type={"radio"} onChange={(e) => handleOrganizationCreation(e)}
+                                   value={0}
+                                   id={'existing'} required={true}/>
+                            <label htmlFor={'existing'}>Использовать существующую</label><br/>
+                            <input name={'organization'} type={"radio"} onChange={(e) => handleOrganizationCreation(e)}
+                                   value={1}
+                                   id={'from-scratch'}/>
+                            <label htmlFor={'from-scratch'}>Создать с нуля</label>
+                        </fieldset>
+
                         {organizationRequired ?
                             <OrganizationBuilder handleSelectChange={handleSelectChange}
                                                  handleInputChange={handleInputChange}
-                                                 organization={workerTemplate?.organization}/> : null}
+                                                 organization={workerTemplate?.organization}/> :
+                            <Selector
+                                name={"organization"} items={getUniqueOrganizations()}
+                                label={"Выберите организацию"}
+                                onChangeAction={(e) => setSelectedOrganizationID(Number(e.target.value))}/>
+                        }
                     </div>
                     <InputField name={'salary'} label={"Зарплата"} type={"number"} minValue={1}
                                 value={updateMode ? createdWorker.salary : undefined} onChange={handleInputChange}/>
