@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure>
+    <deployment>
+        <exclusions>
+            <module name="org.hibernate"/>
+            <module name="org.hibernate.envers"/>
+            <module name="org.hibernate.validator"/>
+            <module name="org.hibernate.commons-annotations"/>
+            <module name="org.javassist"/>
+        </exclusions>
+
+        <dependencies>
+            <module name="jakarta.persistence.api"/>
+            <module name="jakarta.transaction.api"/>
+            <module name="jakarta.validation.api"/>
+        </dependencies>
+    </deployment>
+</jboss-deployment-structure>

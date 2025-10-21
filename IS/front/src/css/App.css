@@ -1,0 +1,33 @@
+.App {
+    text-align: center;
+}
+
+.App-header {
+    background-color: #282c34;
+    min-height: 5vh;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+.Main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: monospace;
+    font-size: large;
+}
+
+.row {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.left-column {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+}
+
