@@ -35,6 +35,7 @@ function Main() {
     const items = useAppSelector((state) => state.items)
     const workerView = useAppSelector((state) => state.workerView)
     const updatable = useAppSelector((state) => state.updatable)
+    const searchValue = useAppSelector((state) => state.searchValue)
     const dispatch = useAppDispatch()
 
 
@@ -42,7 +43,10 @@ function Main() {
         if (updatable) {
             const getWorkers = async () => {
                 try {
-                    let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/view-workers", null, {withCredentials: true})
+                    let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/view-workers", searchValue, {
+                        withCredentials: true,
+                        headers: {"Content-Type": "text/plain"}
+                    })
                     if (response.status === 200) {
                         dispatch(updateItems(response.data))
                     }

@@ -53,11 +53,12 @@ public class DBActionsEndpoints {
 
     @POST
     @Path("/view-workers")
+    @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response view() {
-        if (workerBean.view()) {
+    public Response view(String filters) {
+        if (workerBean.view(filters)) {
             return Response.ok().entity(workerBean.getWorkers()).build();
-        } else return Response.accepted().entity(workerBean.getMessage()).build();
+        } else return Response.accepted().entity(workerBean.getWorkers()).entity(workerBean.getMessage()).build();
     }
 
     @POST

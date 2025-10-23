@@ -14,7 +14,8 @@ export const workerSlice = createSlice({
         workerView: new Worker(0, '', new Coordinates(0, 0), '', '', Position.DIRECTOR, new Person(Color.RED, null, '', null, null), null, null, null, null),
         updateMode: false,
         viewMode: true,
-        updatable: true
+        updatable: true,
+        searchValue: ""
     },
     reducers: {
         updateItems: (state, action) => {
@@ -37,11 +38,15 @@ export const workerSlice = createSlice({
         },
         setUpdatable: (state, action) => {
             state.updatable = action.payload
+        },
+        setSearchValue: (state, action) => {
+            state.searchValue = action.payload
         }
     }
 })
 
 export const {
+    setSearchValue,
     updateViewMode,
     updateBuildMode,
     updateWorkerView,

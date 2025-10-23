@@ -1,14 +1,24 @@
 package com.example.back.ejb;
 
+import com.example.back.beans.WorkerBean;
+import com.example.back.builder.FilterBuilder;
 import com.example.back.entities.*;
+import com.example.back.types.ComparisonOperations;
+import com.example.back.types.Pair;
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.ConstraintViolationException;
 
 import java.util.List;
+import java.util.Map;
 
 @Stateless
 public class WorkerEJB {
+    @Inject
+    WorkerBean wb;
+
     public String addToDB(WorkerEntity worker) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
@@ -99,12 +109,27 @@ public class WorkerEJB {
         }
     }
 
-    public List<WorkerEntity> getAllWorkers() {
+    public Pair<List<WorkerEntity>, String> getAllWorkers(Map<String, Pair<String, ComparisonOperations>> filters) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
 
-        Query query = em.createQuery("select entity from WorkerEntity entity");
-        return query.getResultList();
+        FilterBuilder fb = new FilterBuilder(cb);
+
+        Query query;
+        query = em.createQuery(fb
+                .setId(Long.parseLong(filters.get("id").getLeft()), filters.get("id").getRight())
+                .setName(filters.get("name").getLeft(), filters.get("name").getRight())
+                .build());
+        try {
+
+        } catch (Exception e) {
+            query = em.createQuery("select entity from WorkerEntity entity");
+            String errorMessage = e.getMessage() == null ? "Unknown error" : e.getMessage();
+            return new Pair<>(query.getResultList(), errorMessage);
+        }
+
+        return new Pair<>(query.getResultList(), "");
     }
 
     public List<WorkerEntity> getAllWorkersSorted(String columnName, boolean isAscending) {

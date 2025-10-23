@@ -2,11 +2,16 @@ package com.example.back.beans;
 
 import com.example.back.ejb.WorkerEJB;
 import com.example.back.entities.WorkerEntity;
+import com.example.back.filters.WorkerFilter;
+import com.example.back.types.ComparisonOperations;
+import com.example.back.types.Pair;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 import jakarta.persistence.PersistenceException;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @Named("wb")
@@ -14,6 +19,8 @@ import java.util.List;
 public class WorkerBean {
     private List<WorkerEntity> workers;
     private String message;
+    private final HashMap<String, Pair<String, ComparisonOperations>> mapOfFilters = new HashMap<>();
+
 
     @EJB
     private WorkerEJB workerEJB;
@@ -34,14 +41,24 @@ public class WorkerBean {
         return this.message.equals("OK");
     }
 
-    public boolean view() {
+    public boolean view(String filters) {
         try {
-            workers = workerEJB.getAllWorkers();
+            String[] listOfArgs = filters.split(",");
+            initFilters();
+            Arrays.stream(listOfArgs).forEach(f -> {
+                Pair<String[], ComparisonOperations> pair = WorkerFilter.parseFromString(f.replace(" ", ""));
+                if (pair != null) {
+                    mapOfFilters.put(pair.getLeft()[0], new Pair<>(pair.getLeft()[1], pair.getRight()));
+                }
+            });
+            Pair<List<WorkerEntity>, String> result = workerEJB.getAllWorkers(mapOfFilters);
+            workers = result.getLeft();
+            message = result.getRight();
         } catch (PersistenceException e) {
             message = e.getMessage();
             return false;
         }
-        return true;
+        return message.equals("");
     }
 
     public WorkerEntity getWorkerWithMinPosition() {
@@ -83,5 +100,10 @@ public class WorkerBean {
 
     public List<WorkerEntity> getWorkers() {
         return this.workers;
+    }
+
+    private void initFilters() {
+        mapOfFilters.put("id", new Pair<>("0", ComparisonOperations.GT));
+        mapOfFilters.put("name", new Pair<>("", ComparisonOperations.LIKE));
     }
 }

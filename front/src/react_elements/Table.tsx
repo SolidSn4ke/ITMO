@@ -8,7 +8,7 @@ import ActionButton from "./ActionButton";
 import magnifying_glass from "../resources/magnifying_glass.svg";
 import plus from "../resources/plus.svg";
 import {useAppDispatch, useAppSelector} from "../ts/redux/hooks";
-import {updateViewMode} from "../ts/redux/workerSlice";
+import {setSearchValue, updateViewMode} from "../ts/redux/workerSlice";
 import axios from "axios";
 import Modal from "./Modal";
 import InputField from "./InputField";
@@ -143,7 +143,6 @@ function Table({items, controls}: WorkerWrapper) {
     const {
         paginatedItems,
         sortConfig,
-        filterConditions,
         pagination,
         totalPages,
         handleSort,
@@ -240,7 +239,7 @@ function Table({items, controls}: WorkerWrapper) {
                 />
                 <ActionButton
                     buttonClass={"action-button"}
-                    action={() => handleFilterChange(searchInput)}
+                    action={() => dispatch(setSearchValue(searchInput))}
                     icon={magnifying_glass}
                     tooltip={"Поиск"}
                 />
