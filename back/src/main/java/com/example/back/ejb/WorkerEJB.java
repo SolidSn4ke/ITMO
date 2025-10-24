@@ -2,6 +2,7 @@ package com.example.back.ejb;
 
 import com.example.back.beans.WorkerBean;
 import com.example.back.builder.FilterBuilder;
+import com.example.back.dto.ResponseDTO;
 import com.example.back.entities.*;
 import com.example.back.types.ComparisonOperations;
 import com.example.back.types.Pair;
@@ -11,7 +12,6 @@ import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.ConstraintViolationException;
 
-import java.util.List;
 import java.util.Map;
 
 @Stateless
@@ -19,12 +19,12 @@ public class WorkerEJB {
     @Inject
     WorkerBean wb;
 
-    public String addToDB(WorkerEntity worker) {
+    public ResponseDTO addToDB(WorkerEntity worker) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
 
         if (em.find(PersonEntity.class, worker.getPerson().getPassportID()) != null) {
-            return "Человек с таким паспортом уже существует!";
+            return new ResponseDTO().setMessage("Человек с таким паспортом уже существует!");
         }
 
         try {
@@ -32,13 +32,13 @@ public class WorkerEJB {
             em.close();
             emf.close();
         } catch (ConstraintViolationException e) {
-            return e.getConstraintViolations().toString();
+            return new ResponseDTO().setMessage(e.getConstraintViolations().toString());
         }
 
-        return "OK";
+        return new ResponseDTO().setMessage("OK");
     }
 
-    public String deleteById(Long id) {
+    public ResponseDTO deleteById(Long id) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
 
@@ -74,9 +74,9 @@ public class WorkerEJB {
                 em.remove(location);
             }
 
-            return "OK";
+            return new ResponseDTO().setMessage("ОК");
         } catch (QueryTimeoutException e) {
-            return e.getMessage();
+            return new ResponseDTO().setMessage(e.getMessage());
         } finally {
             em.close();
             emf.close();
@@ -84,12 +84,11 @@ public class WorkerEJB {
     }
 
 
-    public String updateById(Long id, WorkerEntity newWorker) {
+    public ResponseDTO updateById(Long id, WorkerEntity newWorker) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
 
         WorkerEntity oldWorker = em.find(WorkerEntity.class, id);
-
 
         if (oldWorker != null) {
             try {
@@ -100,16 +99,16 @@ public class WorkerEJB {
                 }
                 em.merge(newWorker);
                 em.flush();
-                return "OK";
+                return new ResponseDTO().setMessage("OK");
             } catch (ConstraintViolationException e) {
-                return e.getConstraintViolations().toString() + "\n" + newWorker;
+                return new ResponseDTO().setMessage(e.getConstraintViolations().toString() + "\n" + newWorker);
             }
         } else {
-            return "Entity not found";
+            return new ResponseDTO().setMessage("Entity not found");
         }
     }
 
-    public Pair<List<WorkerEntity>, String> getAllWorkers(Map<String, Pair<String, ComparisonOperations>> filters) {
+    public ResponseDTO getAllWorkers(Map<String, Pair<String, ComparisonOperations>> filters) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -135,33 +134,31 @@ public class WorkerEJB {
                     .build());
         } catch (Exception e) {
             query = em.createQuery("select entity from WorkerEntity entity");
-            String errorMessage = e.getMessage() == null ? "Unknown error" : e.getMessage();
-            return new Pair<>(query.getResultList(), errorMessage);
+            return new ResponseDTO().setListOfWorkers(query.getResultList()).setMessage(e.getMessage());
         }
-
-        return new Pair<>(query.getResultList(), "");
+        return new ResponseDTO().setListOfWorkers(query.getResultList()).setMessage("");
     }
 
-    public List<WorkerEntity> getAllWorkersSorted(String columnName, boolean isAscending) {
+    public ResponseDTO getAllWorkersSorted(String columnName, boolean isAscending) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
 
         String direction = isAscending ? "asc" : "desc";
         Query query = em.createQuery("select entity from WorkerEntity entity order by entity." + columnName + " " + direction);
 
-        return query.getResultList();
+        return new ResponseDTO().setListOfWorkers(query.getResultList());
     }
 
-    public List<WorkerEntity> getAllWorkersWithSpecificRating(Integer rating) {
+    public ResponseDTO getAllWorkersWithSpecificRating(Integer rating) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
 
         Query query = em.createQuery("select entity from WorkerEntity entity where entity.rating < :rating");
         query.setParameter("rating", rating);
-        return query.getResultList();
+        return new ResponseDTO().setListOfWorkers(query.getResultList());
     }
 
-    public String addOrganizationToWorker(Long id, Long organizationID) {
+    public ResponseDTO addOrganizationToWorker(Long id, Long organizationID) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
         EntityManager em = emf.createEntityManager();
 
@@ -170,9 +167,9 @@ public class WorkerEJB {
             WorkerEntity worker = em.find(WorkerEntity.class, id);
 
             worker.setOrganization(organization);
-            return "OK";
+            return new ResponseDTO().setMessage("ОК");
         } catch (PersistenceException e) {
-            return e.getMessage();
+            return new ResponseDTO().setMessage(e.getMessage());
         }
     }
 }

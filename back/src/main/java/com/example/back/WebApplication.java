@@ -6,4 +6,6 @@ import jakarta.ws.rs.core.Application;
 @ApplicationPath("/rest-server")
 public class WebApplication extends Application {
 
+// global exception handler
+// Dto
 }

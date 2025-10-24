@@ -1,5 +1,6 @@
 package com.example.back.beans;
 
+import com.example.back.dto.ResponseDTO;
 import com.example.back.ejb.WorkerEJB;
 import com.example.back.entities.WorkerEntity;
 import com.example.back.filters.WorkerFilter;
@@ -26,18 +27,18 @@ public class WorkerBean {
     private WorkerEJB workerEJB;
 
     public boolean add(WorkerEntity worker) {
-        this.message = workerEJB.addToDB(worker);
+        this.message = workerEJB.addToDB(worker).getMessage();
         return this.message.equals("OK");
 
     }
 
     public boolean delete(Long id) {
-        this.message = workerEJB.deleteById(id);
+        this.message = workerEJB.deleteById(id).getMessage();
         return this.message.equals("OK");
     }
 
     public boolean update(Long id, WorkerEntity worker) {
-        this.message = workerEJB.updateById(id, worker);
+        this.message = workerEJB.updateById(id, worker).getMessage();
         return this.message.equals("OK");
     }
 
@@ -51,9 +52,9 @@ public class WorkerBean {
                     mapOfFilters.put(pair.getLeft()[0], new Pair<>(pair.getLeft()[1], pair.getRight()));
                 }
             });
-            Pair<List<WorkerEntity>, String> result = workerEJB.getAllWorkers(mapOfFilters);
-            workers = result.getLeft();
-            message = result.getRight();
+            ResponseDTO responseDTO = workerEJB.getAllWorkers(mapOfFilters);
+            workers = responseDTO.getListOfWorkers();
+            message = responseDTO.getMessage();
         } catch (PersistenceException e) {
             message = e.getMessage();
             return false;
@@ -63,7 +64,7 @@ public class WorkerBean {
 
     public WorkerEntity getWorkerWithMinPosition() {
         try {
-            return workerEJB.getAllWorkersSorted("position", true).get(0);
+            return workerEJB.getAllWorkersSorted("position", true).getListOfWorkers().get(0);
         } catch (PersistenceException | ArrayIndexOutOfBoundsException e) {
             message = e.getMessage();
             return null;
@@ -72,7 +73,7 @@ public class WorkerBean {
 
     public WorkerEntity getWorkerWithMaxSalary() {
         try {
-            return workerEJB.getAllWorkersSorted("salary", false).get(0);
+            return workerEJB.getAllWorkersSorted("salary", false).getListOfWorkers().get(0);
         } catch (PersistenceException | ArrayIndexOutOfBoundsException e) {
             message = e.getMessage();
             return null;
@@ -81,7 +82,7 @@ public class WorkerBean {
 
     public boolean getWorkersWithSpecificRating(Integer rating) {
         try {
-            workers = workerEJB.getAllWorkersWithSpecificRating(rating);
+            workers = workerEJB.getAllWorkersWithSpecificRating(rating).getListOfWorkers();
             return true;
         } catch (PersistenceException e) {
             message = e.getMessage();
@@ -90,7 +91,7 @@ public class WorkerBean {
     }
 
     public boolean enrollWorker(Long id, Long organizationID) {
-        this.message = workerEJB.addOrganizationToWorker(id, organizationID);
+        this.message = workerEJB.addOrganizationToWorker(id, organizationID).getMessage();
         return this.message.equals("OK");
     }
 
