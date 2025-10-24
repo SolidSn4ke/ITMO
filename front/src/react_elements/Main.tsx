@@ -55,7 +55,7 @@ function Main() {
                 }
             }
 
-            const interval = window.setInterval(getWorkers, 5000)
+            const interval = window.setInterval(getWorkers, 3000)
             return () => {
                 window.clearInterval(interval)
             }

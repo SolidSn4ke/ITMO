@@ -47,7 +47,7 @@ public class WorkerBean {
             initFilters();
             Arrays.stream(listOfArgs).forEach(f -> {
                 Pair<String[], ComparisonOperations> pair = WorkerFilter.parseFromString(f.replace(" ", ""));
-                if (pair != null) {
+                if (pair != null && pair.getLeft().length > 1) {
                     mapOfFilters.put(pair.getLeft()[0], new Pair<>(pair.getLeft()[1], pair.getRight()));
                 }
             });
@@ -103,7 +103,17 @@ public class WorkerBean {
     }
 
     private void initFilters() {
-        mapOfFilters.put("id", new Pair<>("0", ComparisonOperations.GT));
-        mapOfFilters.put("name", new Pair<>("", ComparisonOperations.LIKE));
+        mapOfFilters.put("id", new Pair<>("0", ComparisonOperations.ANY));
+        mapOfFilters.put("name", new Pair<>("", ComparisonOperations.ANY));
+        mapOfFilters.put("x", new Pair<>("0", ComparisonOperations.ANY));
+        mapOfFilters.put("y", new Pair<>("0", ComparisonOperations.ANY));
+        mapOfFilters.put("organizationId", new Pair<>("0", ComparisonOperations.ANY));
+        mapOfFilters.put("creationDate", new Pair<>("", ComparisonOperations.ANY));
+        mapOfFilters.put("salary", new Pair<>("0", ComparisonOperations.ANY));
+        mapOfFilters.put("rating", new Pair<>("0", ComparisonOperations.ANY));
+        mapOfFilters.put("startDate", new Pair<>("", ComparisonOperations.ANY));
+        mapOfFilters.put("position", new Pair<>("COOK", ComparisonOperations.ANY));
+        mapOfFilters.put("status", new Pair<>("REGULAR", ComparisonOperations.ANY));
+        mapOfFilters.put("passportId", new Pair<>("", ComparisonOperations.ANY));
     }
 }

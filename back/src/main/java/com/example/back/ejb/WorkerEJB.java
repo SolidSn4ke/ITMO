@@ -117,12 +117,22 @@ public class WorkerEJB {
         FilterBuilder fb = new FilterBuilder(cb);
 
         Query query;
-        query = em.createQuery(fb
-                .setId(Long.parseLong(filters.get("id").getLeft()), filters.get("id").getRight())
-                .setName(filters.get("name").getLeft(), filters.get("name").getRight())
-                .build());
-        try {
 
+        try {
+            query = em.createQuery(fb
+                    .setId(Long.parseLong(filters.get("id").getLeft()), filters.get("id").getRight())
+                    .setName(filters.get("name").getLeft(), filters.get("name").getRight())
+                    .setX(Double.valueOf(filters.get("x").getLeft()), filters.get("x").getRight())
+                    .setY(Integer.valueOf(filters.get("y").getLeft()), filters.get("y").getRight())
+                    .setOrganizationId(Integer.valueOf(filters.get("organizationId").getLeft()), filters.get("organizationId").getRight())
+                    .setCreationDate(filters.get("creationDate").getLeft(), filters.get("creationDate").getRight())
+                    .setSalary(Double.valueOf(filters.get("salary").getLeft()), filters.get("salary").getRight())
+                    .setRating(Double.valueOf(filters.get("rating").getLeft()), filters.get("rating").getRight())
+                    .setStartDate(filters.get("startDate").getLeft(), filters.get("startDate").getRight())
+                    .setStatus(filters.get("status").getLeft(), filters.get("status").getRight())
+                    .setPosition(filters.get("position").getLeft(), filters.get("position").getRight())
+                    .setPassportId(filters.get("passportId").getLeft(), filters.get("passportId").getRight())
+                    .build());
         } catch (Exception e) {
             query = em.createQuery("select entity from WorkerEntity entity");
             String errorMessage = e.getMessage() == null ? "Unknown error" : e.getMessage();
