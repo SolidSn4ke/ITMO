@@ -11,4 +11,19 @@ positionToString.set(Position.COOK, "Повар")
 positionToString.set(Position.CLEANER, "Уборщик")
 positionToString.set(Position.MANAGER_OF_CLEANING, "Менеджер по клинингу")
 
+export function stringToPosition(position: string) {
+    switch (position.toUpperCase()) {
+        case "DIRECTOR":
+            return Position.DIRECTOR
+        case "COOK":
+            return Position.COOK
+        case "CLEANER":
+            return Position.CLEANER
+        case "MANAGER_OF_CLEANING":
+            return Position.MANAGER_OF_CLEANING
+        default:
+            return null
+    }
+}
+
 export default Position

@@ -1,8 +1,13 @@
 import Coordinates from "./Coordinates";
 import Organization from "./Organization";
-import Position from "./Position";
-import Status from "./Status";
+import Position, { stringToPosition } from "./Position";
+import Status, { stringToStatus } from "./Status";
 import Person from "./Person";
+import Location from "./Location";
+import Address from "./Address";
+import { stringToOrganizationType } from "./OrganizationType";
+import { stringToColor } from "./Color";
+import { stringToCountry } from "./Country";
 
 class Worker {
 
@@ -56,6 +61,76 @@ class Worker {
         valid = this.person.validate()
 
         return valid
+    }
+}
+
+export class FlatWorker {
+    id?: number
+    name?: string
+    x?: number
+    y?: number
+    creation_date?: string
+    org_street?: string
+    org_zip_code?: string
+    org_x?: number
+    org_y?: number
+    org_z?: number
+    org_name?: string
+    annual_turnover?: number
+    employees_count?: number
+    org_rating?: number
+    org_type?: string
+    salary?: number
+    rating?: number
+    start_date?: string
+    position?: string
+    status?: string
+    eye_color?: string
+    hair_color?: string
+    person_location_x?: number
+    person_location_y?: number
+    person_location_z?: number
+    person_location_name?: string
+    passport_id?: string
+    nationality?: string
+
+    public toWorker() {
+        let worker, address, orgLocation, organisation, personLocation, person, coordinates, eye_color, position;
+        console.log(typeof this.org_x, typeof this.org_y, typeof this.org_z, typeof this.org_name);
+        if (this.org_x && this.org_y && this.org_z && this.org_name) {
+            orgLocation = new Location(this.org_x, this.org_y, this.org_z, this.org_name)
+            console.log("Org location created:", orgLocation);
+        }
+
+        if (orgLocation) {
+            address = new Address(orgLocation, this.org_street == undefined ? null : this.org_street, this.org_zip_code == undefined ? null : this.org_zip_code)
+            console.log("Address created:", address);
+        }
+        if (address && this.employees_count && this.org_rating && this.org_type && this.annual_turnover) {
+            organisation = new Organization(null, address, this.employees_count, this.org_rating, stringToOrganizationType(this.org_type), this.annual_turnover)
+            console.log("Organization created:", organisation);
+        } else organisation = null
+
+        if (this.person_location_x && this.person_location_y && this.person_location_z && this.person_location_name)
+            personLocation = new Location(this.person_location_x, this.person_location_y, this.person_location_z, this.person_location_name)
+
+        if (this.eye_color)
+            eye_color = stringToColor(this.eye_color)
+
+        if (eye_color && personLocation && this.passport_id && this.nationality && this.hair_color)
+            person = new Person(eye_color, personLocation, this.passport_id, stringToCountry(this.nationality), stringToColor(this.hair_color))
+
+        if (this.x && this.y) {
+            coordinates = new Coordinates(this.x, this.y)
+        }
+
+        if (this.position)
+            position = stringToPosition(this.position)
+
+        if (this.name && coordinates && this.creation_date && this.start_date && this.position && person && this.status && position)
+            worker = new Worker(0, this.name, coordinates, this.creation_date, this.start_date, position, person, organisation, typeof this.salary == "undefined" ? null : this.salary, typeof this.rating == "undefined" ? null : this.rating, stringToStatus(this.status))
+
+        return worker
     }
 }
 

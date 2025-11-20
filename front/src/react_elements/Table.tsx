@@ -16,6 +16,7 @@ import Selector from "./Selector";
 import {toString} from "../ts/data/Organization";
 import star from '../resources/star.svg'
 import {showErrorNotification, showInfoNotification} from "./Main";
+import DragDrop from "./DragDrop";
 
 interface WorkerWrapper {
     items: Worker[]
@@ -29,6 +30,7 @@ function Table({items, controls}: WorkerWrapper) {
     const [special3, setSpecial3] = useState(false)
     const [special4, setSpecial4] = useState(false)
     const [special5, setSpecial5] = useState(false)
+    const [fileDrop, setFileDrop] = useState(false)
     const [rating, setRating] = useState(0)
     const [selectedOrganizationId, setSelectedOrganizationId] = useState<number | null>(null)
     const [searchInput, setSearchInput] = useState('');
@@ -232,6 +234,12 @@ function Table({items, controls}: WorkerWrapper) {
                 </form>
             </Modal>
 
+            <Modal isOpen={fileDrop} onClose={() => setFileDrop(false)}>
+                <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+                    <DragDrop types={["CSV"]}/>
+                </div>
+            </Modal>
+
             {controls ? <div className={"row"}>
                 <SearchBar
                     id={'table-search'}
@@ -279,6 +287,7 @@ function Table({items, controls}: WorkerWrapper) {
                     buttonClass={"action-button"}
                     tooltip={"Переместить работника в другую организации"}
                 />
+                <ActionButton action={() => setFileDrop(true)} buttonClass={"action-button"}/>
             </div> : undefined}
 
             <div className="pagination-controls">
