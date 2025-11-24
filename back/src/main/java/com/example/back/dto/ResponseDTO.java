@@ -1,28 +1,26 @@
 package com.example.back.dto;
 
-import com.example.back.entities.WorkerEntity;
-
 import java.util.List;
 
-public class ResponseDTO {
+public class ResponseDTO<T> {
     private String message;
-    private List<WorkerEntity> listOfWorkers;
+    private List<T> listOfEntities;
 
     public String getMessage() {
         return message;
     }
 
-    public ResponseDTO setMessage(String message) {
+    public ResponseDTO<T> setMessage(String message) {
         this.message = message;
         return this;
     }
 
-    public List<WorkerEntity> getListOfWorkers() {
-        return listOfWorkers;
+    public List<T> getListOfEntities() {
+        return listOfEntities;
     }
 
-    public ResponseDTO setListOfWorkers(List<WorkerEntity> listOfWorkers) {
-        this.listOfWorkers = listOfWorkers;
+    public ResponseDTO<T> setList(List<T> list) {
+        this.listOfEntities = list;
         return this;
     }
 }

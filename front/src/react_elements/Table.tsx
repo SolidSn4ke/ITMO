@@ -6,7 +6,7 @@ import { useWorkerTable } from "../ts/hooks/useWorkerTable";
 import SearchBar from "./SearchBar";
 import ActionButton from "./ActionButton";
 import magnifying_glass from "../resources/magnifying_glass.svg";
-import send_icon from "../resources/continue.svg" 
+import send_icon from "../resources/continue.svg"
 import plus from "../resources/plus.svg";
 import { useAppDispatch, useAppSelector } from "../ts/redux/hooks";
 import { setSearchValue, updateViewMode } from "../ts/redux/workerSlice";
@@ -26,12 +26,7 @@ interface WorkerWrapper {
 
 function Table({ items, controls }: WorkerWrapper) {
     const [specialItems, setSpecialItems] = useState(Array<Worker>)
-    const [special1, setSpecial1] = useState(false)
-    const [special2, setSpecial2] = useState(false)
-    const [special3, setSpecial3] = useState(false)
-    const [special4, setSpecial4] = useState(false)
-    const [special5, setSpecial5] = useState(false)
-    const [fileDrop, setFileDrop] = useState(false)
+    const [specialMode, setSpecialMode] = useState<null | "min" | "max" | "rating" | "enroll" | "move" | "import">(null);
     const [rating, setRating] = useState(0)
     const [selectedOrganizationId, setSelectedOrganizationId] = useState<number | null>(null)
     const [searchInput, setSearchInput] = useState('');
@@ -52,7 +47,7 @@ function Table({ items, controls }: WorkerWrapper) {
             let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/worker-min-position", null, { withCredentials: true })
             if (response.status === 200 && response.data) {
                 setSpecialItems([response.data])
-                setSpecial1(true)
+                setSpecialMode('min')
             }
         } catch (e) {
             console.log(e)
@@ -64,7 +59,7 @@ function Table({ items, controls }: WorkerWrapper) {
             let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/worker-max-salary", null, { withCredentials: true })
             if (response.status === 200) {
                 setSpecialItems([response.data])
-                setSpecial2(true)
+                setSpecialMode('max')
             }
         } catch (e) {
             console.log(e)
@@ -72,13 +67,13 @@ function Table({ items, controls }: WorkerWrapper) {
     }
 
     const handleGetWorkersWithSpecificRating = async () => {
-        setSpecial3(true)
+        setSpecialMode('rating')
         setSpecialItems([])
     }
 
     const handleSendRating = async (event: Event) => {
         event.preventDefault()
-        const form: HTMLFormElement = document.getElementById('modal3') as HTMLFormElement
+        const form: HTMLFormElement = document.getElementById('modal-rating') as HTMLFormElement
 
         if (form.checkValidity()) {
             try {
@@ -102,7 +97,7 @@ function Table({ items, controls }: WorkerWrapper) {
             showErrorNotification('Невозможно выполнить спец. функцию: Выбранный работник уже работает в организации')
             return
         }
-        setSpecial4(true)
+        setSpecialMode('enroll')
         setSpecialItems([])
     }
 
@@ -114,13 +109,13 @@ function Table({ items, controls }: WorkerWrapper) {
             showErrorNotification('Невозможно выполнить спец. функцию: Работник не устроен на работу в организацию')
             return
         }
-        setSpecial5(true)
+        setSpecialMode('move')
         setSpecialItems([])
     }
 
     const handleSendOrganization = async (event: Event) => {
         event.preventDefault()
-        const form: HTMLFormElement = document.getElementById('modal4') as HTMLFormElement
+        const form: HTMLFormElement = document.getElementById('modal-enroll') as HTMLFormElement
         if (form.checkValidity() && selectedOrganizationId) {
             try {
                 let response = await axios.post(
@@ -132,8 +127,8 @@ function Table({ items, controls }: WorkerWrapper) {
                 )
                 if (response.status === 200) {
                     showInfoNotification('Успешное добавление организации')
-                    setSpecial4(false)
-                    setSpecial5(false)
+                    setSpecialMode(null)
+                    setSpecialMode(null)
                 }
             } catch (e) {
                 console.log(e)
@@ -173,74 +168,68 @@ function Table({ items, controls }: WorkerWrapper) {
 
     return (
         <div>
-            <Modal isOpen={special1} onClose={() => setSpecial1(false)}>
-                <Table items={specialItems} controls={false} />
-            </Modal>
+            <Modal isOpen={specialMode !== null} onClose={() => setSpecialMode(null)}>
+                {specialMode === "min" && (
+                    <Table items={specialItems} controls={false} />
+                )}
 
-            <Modal isOpen={special2} onClose={() => setSpecial2(false)}>
-                <Table items={specialItems} controls={false} />
-            </Modal>
+                {specialMode === "max" && (
+                    <Table items={specialItems} controls={false} />
+                )}
 
-            <Modal isOpen={special3} onClose={() => setSpecial3(false)}>
-                <form id={'modal3'}>
-                    <InputField
-                        required={true}
-                        name={"rating"}
-                        label={"Рейтинг"}
-                        type={"number"}
-                        minValue={1}
-                        onChange={(e) => setRating(Number.parseInt(e.target.value))}
-                    />
-                    <ActionButton
-                        icon={magnifying_glass}
-                        action={handleSendRating}
-                        buttonClass={'action-button'}
-                        form={'modal3'}
-                    />
-                </form>
-                <Table items={specialItems} controls={false} />
-            </Modal>
+                {specialMode === "rating" && (
+                    <>
+                        <form id={'modal-rating'}>
+                            <InputField
+                                required={true}
+                                name={"rating"}
+                                label={"Рейтинг"}
+                                type={"number"}
+                                minValue={1}
+                                onChange={(e) => setRating(Number(e.target.value))}
+                            />
+                            <ActionButton
+                                icon={magnifying_glass}
+                                action={handleSendRating}
+                                buttonClass={'action-button'}
+                                form={'modal-rating'}
+                            />
+                        </form>
+                        <Table items={specialItems} controls={false} />
+                    </>
+                )}
 
-            <Modal isOpen={special4} onClose={() => setSpecial4(false)}>
-                <form id={'modal4'}>
-                    <div style={{ marginBottom: '20px' }}>
-                        <p>
-                            <strong>Работник:</strong> {workerView === null ? '' : workerView.name} (ID: {workerView === null ? '' : workerView.id})
-                        </p>
-                    </div>
-                    <Selector
-                        required={true} name={"organization"} items={getUniqueOrganizations()}
-                        label={"Выберите организацию"}
-                        onChangeAction={(e) => setSelectedOrganizationId(Number(e.target.value))} />
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                        <ActionButton action={handleSendOrganization} buttonClass={'action-button'} form={'modal4'} />
-                    </div>
-                </form>
-            </Modal>
+                {specialMode === "enroll" && (
+                    <form id={'modal-enroll'}>
+                        <Selector
+                            required={true}
+                            name={"organization"}
+                            items={getUniqueOrganizations()}
+                            label={"Выберите организацию"}
+                            onChangeAction={(e) => setSelectedOrganizationId(Number(e.target.value))}
+                        />
+                        <ActionButton action={handleSendOrganization} form={'modal-enroll'} buttonClass={'action-button'} />
+                    </form>
+                )}
 
-            <Modal isOpen={special5} onClose={() => setSpecial5(false)}>
-                <form id={'modal4'}>
-                    <div style={{ marginBottom: '20px' }}>
-                        <p>
-                            <strong>Работник:</strong> {workerView === null ? '' : workerView.name} (ID: {workerView === null ? '' : workerView.id})
-                        </p>
-                    </div>
-                    <Selector
-                        required={true} name={"organization"} items={getUniqueOrganizations()}
-                        label={"Выберите организацию"}
-                        onChangeAction={(e) => setSelectedOrganizationId(Number(e.target.value))} />
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                        <ActionButton action={handleSendOrganization} buttonClass={'action-button'} form={'modal4'} />
-                    </div>
-                </form>
-            </Modal>
+                {specialMode === "move" && (
+                    <form id={'modal-enroll'}>
+                        <Selector
+                            required={true}
+                            name={"organization"}
+                            items={getUniqueOrganizations()}
+                            label={"Выберите новую организацию"}
+                            onChangeAction={(e) => setSelectedOrganizationId(Number(e.target.value))}
+                        />
+                        <ActionButton action={handleSendOrganization} form={'modal-enroll'} buttonClass={'action-button'} />
+                    </form>
+                )}
 
-            <Modal isOpen={fileDrop} onClose={() => setFileDrop(false)}>
-                <div style={{ margin: "10px", padding: "10px" }}>
-                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", columnGap: "20px"}}>
+                {specialMode === "import" && (
+                    <div style={{display: "flex", justifyContent: "center"}}>
                         <DragNDrop types={["CSV"]} url={"http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/import-workers"} />
                     </div>
-                </div>
+                )}
             </Modal>
 
             {controls ? <div className={"row"}>
@@ -290,7 +279,7 @@ function Table({ items, controls }: WorkerWrapper) {
                     buttonClass={"action-button"}
                     tooltip={"Переместить работника в другую организации"}
                 />
-                <ActionButton action={() => setFileDrop(true)} buttonClass={"action-button"} />
+                <ActionButton action={() => setSpecialMode('import')} buttonClass={"action-button"} />
             </div> : undefined}
 
             <div className="pagination-controls">

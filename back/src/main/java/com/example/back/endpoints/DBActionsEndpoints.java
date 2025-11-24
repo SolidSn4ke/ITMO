@@ -2,8 +2,10 @@ package com.example.back.endpoints;
 
 import java.util.List;
 
+import com.example.back.beans.ImportHistoryBean;
 import com.example.back.beans.WorkerBean;
 import com.example.back.data.Worker;
+import com.example.back.entities.ImportHistoryEntity;
 import com.example.back.entities.WorkerEntity;
 import com.example.back.exceptions.importing.ImportException;
 
@@ -19,6 +21,9 @@ public class DBActionsEndpoints {
     @Inject
     private @Named("wb") WorkerBean workerBean;
 
+    @Inject
+    private @Named("ihb") ImportHistoryBean importHistoryBean;
+
     @POST
     @Path("/add-worker")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -30,7 +35,6 @@ public class DBActionsEndpoints {
         } else {
             return Response.accepted().entity(workerBean.getMessage()).build();
         }
-
     }
 
     @POST
@@ -39,11 +43,17 @@ public class DBActionsEndpoints {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response importWorkers(List<Worker> workers) {
+        ImportHistoryEntity importRecord = new ImportHistoryEntity();
         workers.stream().map(Worker::toEntity).forEach(e -> {
             workerBean.add(e);
-            if (!workerBean.getMessage().equals("OK"))
-                throw new ImportException(String.format("Failed to import file: %s\nGot: %s", workerBean.getMessage(), e.toString()));
-        }); 
+            if (!workerBean.getMessage().equals("OK")) {
+                throw new ImportException(
+                        String.format("Failed to import file: %s\nGot: %s", workerBean.getMessage(), e.toString()));
+            }
+        });
+        importRecord.setSuccessful(true);
+        importRecord.setNumOfEntitiesImported((long) workers.size());
+        importHistoryBean.addImportRecord(importRecord);
         return Response.ok().build();
     }
 
@@ -121,5 +131,24 @@ public class DBActionsEndpoints {
             return Response.ok().build();
         } else
             return Response.ok().entity(workerBean.getMessage()).build();
+    }
+
+    @POST
+    @Path("/import-history")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getImportHistory() {
+        List<ImportHistoryEntity> records = importHistoryBean.getAllImportRecords();
+        return Response.ok().entity(records).build();
+    }
+
+    @POST
+    @Path("/clear-import-history")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response clearImportHistory() {
+        if (importHistoryBean.deleteAllImportRecords()) {
+            return Response.ok().build();
+        } else {
+            return Response.accepted().entity("Failed to clear import history").build();
+        }
     }
 }

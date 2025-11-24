@@ -2,7 +2,7 @@ import Papa, { ParseResult } from "papaparse";
 import Worker, { FlatWorker } from "../ts/data/Worker";
 import { FileUploader } from "react-drag-drop-files";
 import axios from "axios";
-import { showInfoNotification } from "./Main";
+import { showErrorNotification, showInfoNotification } from "./Main";
 
 interface DragNDropProps {
     types: [string];
@@ -43,6 +43,8 @@ function DragNDrop({ types, url }: DragNDropProps) {
             let response = await axios.post(url, workers, { withCredentials: true });
             if (response.status === 200) {
                 showInfoNotification("Работники успешно импортированы.");
+            } else {
+                showErrorNotification("Не удалось импортировать файл")
             }
         } catch (error) {
             console.log(error);

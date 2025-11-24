@@ -9,6 +9,7 @@
         <class>com.example.back.entities.LocationEntity</class>
         <class>com.example.back.entities.AddressEntity</class>
         <class>com.example.back.entities.CoordinatesEntity</class>
+        <class>com.example.back.entities.ImportHistoryEntity</class>
         <properties>
 
             <property name="eclipselink.target-server" value="WildFly"/>

@@ -22,7 +22,6 @@ public class WorkerBean {
     private String message;
     private final HashMap<String, Pair<String, ComparisonOperations>> mapOfFilters = new HashMap<>();
 
-
     @EJB
     private WorkerEJB workerEJB;
 
@@ -51,8 +50,8 @@ public class WorkerBean {
                     mapOfFilters.put(pair.getLeft()[0], new Pair<>(pair.getLeft()[1], pair.getRight()));
                 }
             });
-            ResponseDTO responseDTO = workerEJB.getAllWorkers(mapOfFilters);
-            workers = responseDTO.getListOfWorkers();
+            ResponseDTO<WorkerEntity> responseDTO = workerEJB.getAllWorkers(mapOfFilters);
+            workers = responseDTO.getListOfEntities();
             message = responseDTO.getMessage();
         } catch (PersistenceException e) {
             message = e.getMessage();
@@ -63,7 +62,7 @@ public class WorkerBean {
 
     public WorkerEntity getWorkerWithMinPosition() {
         try {
-            return workerEJB.getAllWorkersSorted("position", true).getListOfWorkers().get(0);
+            return workerEJB.getAllWorkersSorted("position", true).getListOfEntities().get(0);
         } catch (PersistenceException | ArrayIndexOutOfBoundsException e) {
             message = e.getMessage();
             return null;
@@ -72,7 +71,7 @@ public class WorkerBean {
 
     public WorkerEntity getWorkerWithMaxSalary() {
         try {
-            return workerEJB.getAllWorkersSorted("salary", false).getListOfWorkers().get(0);
+            return workerEJB.getAllWorkersSorted("salary", false).getListOfEntities().get(0);
         } catch (PersistenceException | ArrayIndexOutOfBoundsException e) {
             message = e.getMessage();
             return null;
@@ -81,7 +80,7 @@ public class WorkerBean {
 
     public boolean getWorkersWithSpecificRating(Integer rating) {
         try {
-            workers = workerEJB.getAllWorkersWithSpecificRating(rating).getListOfWorkers();
+            workers = workerEJB.getAllWorkersWithSpecificRating(rating).getListOfEntities();
             return true;
         } catch (PersistenceException e) {
             message = e.getMessage();

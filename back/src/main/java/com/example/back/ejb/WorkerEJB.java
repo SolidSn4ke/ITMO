@@ -22,21 +22,21 @@ public class WorkerEJB {
     @PersistenceContext(unitName = "examplePU")
     EntityManager em;
 
-    public ResponseDTO addToDB(WorkerEntity worker) {
+    public ResponseDTO<Object> addToDB(WorkerEntity worker) {
         if (em.find(PersonEntity.class, worker.getPerson().getPassportID()) != null) {
-            return new ResponseDTO().setMessage("Человек с таким паспортом уже существует!");
+            return new ResponseDTO<Object>().setMessage("Человек с таким паспортом уже существует!");
         }
 
         try {
             em.merge(worker);
         } catch (ConstraintViolationException e) {
-            return new ResponseDTO().setMessage(e.getConstraintViolations().toString());
+            return new ResponseDTO<Object>().setMessage(e.getConstraintViolations().toString());
         }
 
-        return new ResponseDTO().setMessage("OK");
+        return new ResponseDTO<Object>().setMessage("OK");
     }
 
-    public ResponseDTO deleteById(Long id) {
+    public ResponseDTO<Object> deleteById(Long id) {
         try {
             WorkerEntity worker = em.find(WorkerEntity.class, id);
 
@@ -69,14 +69,14 @@ public class WorkerEJB {
                 em.remove(location);
             }
 
-            return new ResponseDTO().setMessage("ОК");
+            return new ResponseDTO<Object>().setMessage("ОК");
         } catch (QueryTimeoutException e) {
-            return new ResponseDTO().setMessage(e.getMessage());
+            return new ResponseDTO<Object>().setMessage(e.getMessage());
         }
     }
 
 
-    public ResponseDTO updateById(Long id, WorkerEntity newWorker) {
+    public ResponseDTO<Object> updateById(Long id, WorkerEntity newWorker) {
         WorkerEntity oldWorker = em.find(WorkerEntity.class, id);
 
         if (oldWorker != null) {
@@ -88,16 +88,16 @@ public class WorkerEJB {
                 }
                 em.merge(newWorker);
                 em.flush();
-                return new ResponseDTO().setMessage("OK");
+                return new ResponseDTO<Object>().setMessage("OK");
             } catch (ConstraintViolationException e) {
-                return new ResponseDTO().setMessage(e.getConstraintViolations().toString() + "\n" + newWorker);
+                return new ResponseDTO<Object>().setMessage(e.getConstraintViolations().toString() + "\n" + newWorker);
             }
         } else {
-            return new ResponseDTO().setMessage("Entity not found");
+            return new ResponseDTO<Object>().setMessage("Entity not found");
         }
     }
 
-    public ResponseDTO getAllWorkers(Map<String, Pair<String, ComparisonOperations>> filters) {
+    public ResponseDTO<WorkerEntity> getAllWorkers(Map<String, Pair<String, ComparisonOperations>> filters) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
         FilterBuilder fb = new FilterBuilder(cb);
@@ -121,33 +121,33 @@ public class WorkerEJB {
                     .build());
         } catch (Exception e) {
             query = em.createQuery("select entity from WorkerEntity entity");
-            return new ResponseDTO().setListOfWorkers(query.getResultList()).setMessage(e.getMessage());
+            return new ResponseDTO<WorkerEntity>().setList(query.getResultList()).setMessage(e.getMessage());
         }
-        return new ResponseDTO().setListOfWorkers(query.getResultList()).setMessage("");
+        return new ResponseDTO<WorkerEntity>().setList(query.getResultList()).setMessage("");
     }
 
-    public ResponseDTO getAllWorkersSorted(String columnName, boolean isAscending) {
+    public ResponseDTO<WorkerEntity> getAllWorkersSorted(String columnName, boolean isAscending) {
         String direction = isAscending ? "asc" : "desc";
         Query query = em.createQuery("select entity from WorkerEntity entity order by entity." + columnName + " " + direction);
 
-        return new ResponseDTO().setListOfWorkers(query.getResultList());
+        return new ResponseDTO<WorkerEntity>().setList(query.getResultList());
     }
 
-    public ResponseDTO getAllWorkersWithSpecificRating(Integer rating) {
+    public ResponseDTO<WorkerEntity> getAllWorkersWithSpecificRating(Integer rating) {
         Query query = em.createQuery("select entity from WorkerEntity entity where entity.rating < :rating");
         query.setParameter("rating", rating);
-        return new ResponseDTO().setListOfWorkers(query.getResultList());
+        return new ResponseDTO<WorkerEntity>().setList(query.getResultList());
     }
 
-    public ResponseDTO addOrganizationToWorker(Long id, Long organizationID) {
+    public ResponseDTO<Object> addOrganizationToWorker(Long id, Long organizationID) {
         try {
             OrganizationEntity organization = em.find(OrganizationEntity.class, organizationID);
             WorkerEntity worker = em.find(WorkerEntity.class, id);
 
             worker.setOrganization(organization);
-            return new ResponseDTO().setMessage("ОК");
+            return new ResponseDTO<Object>().setMessage("ОК");
         } catch (PersistenceException e) {
-            return new ResponseDTO().setMessage(e.getMessage());
+            return new ResponseDTO<Object>().setMessage(e.getMessage());
         }
     }
 }
