@@ -1,9 +1,15 @@
 package com.example.back.endpoints;
 
+import java.util.List;
+
 import com.example.back.beans.WorkerBean;
+import com.example.back.data.Worker;
 import com.example.back.entities.WorkerEntity;
+import com.example.back.exceptions.importing.ImportException;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -12,7 +18,6 @@ import jakarta.ws.rs.core.Response;
 public class DBActionsEndpoints {
     @Inject
     private @Named("wb") WorkerBean workerBean;
-
 
     @POST
     @Path("/add-worker")
@@ -26,6 +31,20 @@ public class DBActionsEndpoints {
             return Response.accepted().entity(workerBean.getMessage()).build();
         }
 
+    }
+
+    @POST
+    @Path("import-workers")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response importWorkers(List<Worker> workers) {
+        workers.stream().map(Worker::toEntity).forEach(e -> {
+            workerBean.add(e);
+            if (!workerBean.getMessage().equals("OK"))
+                throw new ImportException(String.format("Failed to import file: %s\nGot: %s", workerBean.getMessage(), e.toString()));
+        }); 
+        return Response.ok().build();
     }
 
     @POST
@@ -58,7 +77,8 @@ public class DBActionsEndpoints {
     public Response view(String filters) {
         if (workerBean.view(filters)) {
             return Response.ok().entity(workerBean.getWorkers()).build();
-        } else return Response.accepted().entity(workerBean.getWorkers()).entity(workerBean.getMessage()).build();
+        } else
+            return Response.accepted().entity(workerBean.getWorkers()).entity(workerBean.getMessage()).build();
     }
 
     @POST
@@ -68,7 +88,8 @@ public class DBActionsEndpoints {
         WorkerEntity result = workerBean.getWorkerWithMinPosition();
         if (result == null) {
             return Response.accepted().entity(workerBean.getMessage()).build();
-        } else return Response.ok().entity(result).build();
+        } else
+            return Response.ok().entity(result).build();
     }
 
     @POST
@@ -78,7 +99,8 @@ public class DBActionsEndpoints {
         WorkerEntity result = workerBean.getWorkerWithMaxSalary();
         if (result == null) {
             return Response.accepted().entity(workerBean.getMessage()).build();
-        } else return Response.ok().entity(result).build();
+        } else
+            return Response.ok().entity(result).build();
     }
 
     @POST
@@ -87,7 +109,8 @@ public class DBActionsEndpoints {
     public Response workerWithMaxSalary(Integer rating) {
         if (workerBean.getWorkersWithSpecificRating(rating)) {
             return Response.ok().entity(workerBean.getWorkers()).build();
-        } else return Response.ok().entity(workerBean.getMessage()).build();
+        } else
+            return Response.ok().entity(workerBean.getMessage()).build();
     }
 
     @POST
@@ -96,6 +119,7 @@ public class DBActionsEndpoints {
     public Response workerWithMaxSalary(@PathParam("id") Long id, Long organizationID) {
         if (workerBean.enrollWorker(id, organizationID)) {
             return Response.ok().build();
-        } else return Response.ok().entity(workerBean.getMessage()).build();
+        } else
+            return Response.ok().entity(workerBean.getMessage()).build();
     }
 }

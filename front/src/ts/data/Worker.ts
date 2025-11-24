@@ -69,7 +69,6 @@ export class FlatWorker {
     name?: string
     x?: number
     y?: number
-    creation_date?: string
     org_street?: string
     org_zip_code?: string
     org_x?: number
@@ -96,9 +95,8 @@ export class FlatWorker {
 
     public toWorker() {
         let worker, address, orgLocation, organisation, personLocation, person, coordinates, eye_color, position;
-        console.log(typeof this.org_x, typeof this.org_y, typeof this.org_z, typeof this.org_name);
         if (this.org_x && this.org_y && this.org_z && this.org_name) {
-            orgLocation = new Location(this.org_x, this.org_y, this.org_z, this.org_name)
+            orgLocation = new Location(Number(this.org_x), Number(this.org_y), Number(this.org_z), this.org_name)
             console.log("Org location created:", orgLocation);
         }
 
@@ -107,12 +105,12 @@ export class FlatWorker {
             console.log("Address created:", address);
         }
         if (address && this.employees_count && this.org_rating && this.org_type && this.annual_turnover) {
-            organisation = new Organization(null, address, this.employees_count, this.org_rating, stringToOrganizationType(this.org_type), this.annual_turnover)
+            organisation = new Organization(null, address, Number(this.employees_count), Number(this.org_rating), stringToOrganizationType(this.org_type), Number(this.annual_turnover))
             console.log("Organization created:", organisation);
         } else organisation = null
 
         if (this.person_location_x && this.person_location_y && this.person_location_z && this.person_location_name)
-            personLocation = new Location(this.person_location_x, this.person_location_y, this.person_location_z, this.person_location_name)
+            personLocation = new Location(Number(this.person_location_x), Number(this.person_location_y), Number(this.person_location_z), this.person_location_name)
 
         if (this.eye_color)
             eye_color = stringToColor(this.eye_color)
@@ -121,14 +119,14 @@ export class FlatWorker {
             person = new Person(eye_color, personLocation, this.passport_id, stringToCountry(this.nationality), stringToColor(this.hair_color))
 
         if (this.x && this.y) {
-            coordinates = new Coordinates(this.x, this.y)
+            coordinates = new Coordinates(Number(this.x), Number(this.y))
         }
 
         if (this.position)
             position = stringToPosition(this.position)
 
-        if (this.name && coordinates && this.creation_date && this.start_date && this.position && person && this.status && position)
-            worker = new Worker(0, this.name, coordinates, this.creation_date, this.start_date, position, person, organisation, typeof this.salary == "undefined" ? null : this.salary, typeof this.rating == "undefined" ? null : this.rating, stringToStatus(this.status))
+        if (this.name && coordinates && this.start_date && this.position && person && this.status && position)
+            worker = new Worker(0, this.name, coordinates, "", this.start_date, position, person, organisation, this.salary === undefined ? null : Number(this.salary), this.rating === undefined ? null : Number(this.rating), stringToStatus(this.status))
 
         return worker
     }

@@ -1,29 +1,30 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import TableRow from "./TableRow";
 import "../css/Table.css"
 import Worker from "../ts/data/Worker"
-import {useWorkerTable} from "../ts/hooks/useWorkerTable";
+import { useWorkerTable } from "../ts/hooks/useWorkerTable";
 import SearchBar from "./SearchBar";
 import ActionButton from "./ActionButton";
 import magnifying_glass from "../resources/magnifying_glass.svg";
+import send_icon from "../resources/continue.svg" 
 import plus from "../resources/plus.svg";
-import {useAppDispatch, useAppSelector} from "../ts/redux/hooks";
-import {setSearchValue, updateViewMode} from "../ts/redux/workerSlice";
+import { useAppDispatch, useAppSelector } from "../ts/redux/hooks";
+import { setSearchValue, updateViewMode } from "../ts/redux/workerSlice";
 import axios from "axios";
 import Modal from "./Modal";
 import InputField from "./InputField";
 import Selector from "./Selector";
-import {toString} from "../ts/data/Organization";
+import { toString } from "../ts/data/Organization";
 import star from '../resources/star.svg'
-import {showErrorNotification, showInfoNotification} from "./Main";
-import DragDrop from "./DragDrop";
+import { showErrorNotification, showInfoNotification } from "./Main";
+import DragNDrop from "./DragNDrop";
 
 interface WorkerWrapper {
     items: Worker[]
     controls: boolean
 }
 
-function Table({items, controls}: WorkerWrapper) {
+function Table({ items, controls }: WorkerWrapper) {
     const [specialItems, setSpecialItems] = useState(Array<Worker>)
     const [special1, setSpecial1] = useState(false)
     const [special2, setSpecial2] = useState(false)
@@ -48,7 +49,7 @@ function Table({items, controls}: WorkerWrapper) {
 
     const handleGetWorkerWithMinPosition = async () => {
         try {
-            let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/worker-min-position", null, {withCredentials: true})
+            let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/worker-min-position", null, { withCredentials: true })
             if (response.status === 200 && response.data) {
                 setSpecialItems([response.data])
                 setSpecial1(true)
@@ -60,7 +61,7 @@ function Table({items, controls}: WorkerWrapper) {
 
     const handleGetWorkerWithMaxSalary = async () => {
         try {
-            let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/worker-max-salary", null, {withCredentials: true})
+            let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/worker-max-salary", null, { withCredentials: true })
             if (response.status === 200) {
                 setSpecialItems([response.data])
                 setSpecial2(true)
@@ -81,7 +82,7 @@ function Table({items, controls}: WorkerWrapper) {
 
         if (form.checkValidity()) {
             try {
-                let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/worker-specific-rating", {rating: rating}, {withCredentials: true})
+                let response = await axios.post("http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/worker-specific-rating", { rating: rating }, { withCredentials: true })
                 if (response.status === 200) {
                     setSpecialItems(response.data)
                 }
@@ -127,7 +128,7 @@ function Table({items, controls}: WorkerWrapper) {
                     {
                         organizationID: selectedOrganizationId
                     },
-                    {withCredentials: true}
+                    { withCredentials: true }
                 )
                 if (response.status === 200) {
                     showInfoNotification('Успешное добавление организации')
@@ -173,11 +174,11 @@ function Table({items, controls}: WorkerWrapper) {
     return (
         <div>
             <Modal isOpen={special1} onClose={() => setSpecial1(false)}>
-                <Table items={specialItems} controls={false}/>
+                <Table items={specialItems} controls={false} />
             </Modal>
 
             <Modal isOpen={special2} onClose={() => setSpecial2(false)}>
-                <Table items={specialItems} controls={false}/>
+                <Table items={specialItems} controls={false} />
             </Modal>
 
             <Modal isOpen={special3} onClose={() => setSpecial3(false)}>
@@ -197,12 +198,12 @@ function Table({items, controls}: WorkerWrapper) {
                         form={'modal3'}
                     />
                 </form>
-                <Table items={specialItems} controls={false}/>
+                <Table items={specialItems} controls={false} />
             </Modal>
 
             <Modal isOpen={special4} onClose={() => setSpecial4(false)}>
                 <form id={'modal4'}>
-                    <div style={{marginBottom: '20px'}}>
+                    <div style={{ marginBottom: '20px' }}>
                         <p>
                             <strong>Работник:</strong> {workerView === null ? '' : workerView.name} (ID: {workerView === null ? '' : workerView.id})
                         </p>
@@ -210,16 +211,16 @@ function Table({items, controls}: WorkerWrapper) {
                     <Selector
                         required={true} name={"organization"} items={getUniqueOrganizations()}
                         label={"Выберите организацию"}
-                        onChangeAction={(e) => setSelectedOrganizationId(Number(e.target.value))}/>
-                    <div style={{display: 'flex', gap: '10px', marginTop: '20px'}}>
-                        <ActionButton action={handleSendOrganization} buttonClass={'action-button'} form={'modal4'}/>
+                        onChangeAction={(e) => setSelectedOrganizationId(Number(e.target.value))} />
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                        <ActionButton action={handleSendOrganization} buttonClass={'action-button'} form={'modal4'} />
                     </div>
                 </form>
             </Modal>
 
             <Modal isOpen={special5} onClose={() => setSpecial5(false)}>
                 <form id={'modal4'}>
-                    <div style={{marginBottom: '20px'}}>
+                    <div style={{ marginBottom: '20px' }}>
                         <p>
                             <strong>Работник:</strong> {workerView === null ? '' : workerView.name} (ID: {workerView === null ? '' : workerView.id})
                         </p>
@@ -227,16 +228,18 @@ function Table({items, controls}: WorkerWrapper) {
                     <Selector
                         required={true} name={"organization"} items={getUniqueOrganizations()}
                         label={"Выберите организацию"}
-                        onChangeAction={(e) => setSelectedOrganizationId(Number(e.target.value))}/>
-                    <div style={{display: 'flex', gap: '10px', marginTop: '20px'}}>
-                        <ActionButton action={handleSendOrganization} buttonClass={'action-button'} form={'modal4'}/>
+                        onChangeAction={(e) => setSelectedOrganizationId(Number(e.target.value))} />
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                        <ActionButton action={handleSendOrganization} buttonClass={'action-button'} form={'modal4'} />
                     </div>
                 </form>
             </Modal>
 
             <Modal isOpen={fileDrop} onClose={() => setFileDrop(false)}>
-                <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-                    <DragDrop types={["CSV"]}/>
+                <div style={{ margin: "10px", padding: "10px" }}>
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", columnGap: "20px"}}>
+                        <DragNDrop types={["CSV"]} url={"http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/import-workers"} />
+                    </div>
                 </div>
             </Modal>
 
@@ -287,84 +290,84 @@ function Table({items, controls}: WorkerWrapper) {
                     buttonClass={"action-button"}
                     tooltip={"Переместить работника в другую организации"}
                 />
-                <ActionButton action={() => setFileDrop(true)} buttonClass={"action-button"}/>
+                <ActionButton action={() => setFileDrop(true)} buttonClass={"action-button"} />
             </div> : undefined}
 
             <div className="pagination-controls">
-                <ActionButton text={'<<'} action={() => handlePageChange(1)} buttonClass={'pagination-button'}/>
+                <ActionButton text={'<<'} action={() => handlePageChange(1)} buttonClass={'pagination-button'} />
                 <ActionButton text={'<'} action={() => handlePageChange(pagination.currentPage - 1)}
-                              buttonClass={'pagination-button'}/>
+                    buttonClass={'pagination-button'} />
                 <ActionButton text={'>'} action={() => handlePageChange(pagination.currentPage + 1)}
-                              buttonClass={'pagination-button'}/>
+                    buttonClass={'pagination-button'} />
                 <ActionButton text={'>>'} action={() => handlePageChange(totalPages)}
-                              buttonClass={'pagination-button'}/>
+                    buttonClass={'pagination-button'} />
             </div>
 
             <table className={"worker-table"}>
                 <thead>
-                <tr>
-                    <th className={getSortClass('id')} onClick={() => handleSort('id')}>
-                        id
-                    </th>
-                    <th className={getSortClass('name')} onClick={() => handleSort('name')}>
-                        Имя
-                    </th>
-                    <th className={getSortClass('coordinates')} onClick={() => handleSort('coordinates')}>
-                        Координаты
-                    </th>
-                    <th className={getSortClass('creationDate')} onClick={() => handleSort('creationDate')}>
-                        Дата Создания
-                    </th>
-                    <th className={getSortClass('organization')} onClick={() => handleSort('organization')}>
-                        Организация
-                    </th>
-                    <th className={getSortClass('salary')} onClick={() => handleSort('salary')}>
-                        Зарплата
-                    </th>
-                    <th className={getSortClass('rating')} onClick={() => handleSort('rating')}>
-                        Рейтинг
-                    </th>
-                    <th className={getSortClass('startDate')} onClick={() => handleSort('startDate')}>
-                        Дата начала работы
-                    </th>
-                    <th className={getSortClass('position')} onClick={() => handleSort('position')}>
-                        Должность
-                    </th>
-                    <th className={getSortClass('status')} onClick={() => handleSort('status')}>
-                        Статус
-                    </th>
-                    <th className={getSortClass('person')} onClick={() => handleSort('person')}>
-                        Паспорт
-                    </th>
-                </tr>
+                    <tr>
+                        <th className={getSortClass('id')} onClick={() => handleSort('id')}>
+                            id
+                        </th>
+                        <th className={getSortClass('name')} onClick={() => handleSort('name')}>
+                            Имя
+                        </th>
+                        <th className={getSortClass('coordinates')} onClick={() => handleSort('coordinates')}>
+                            Координаты
+                        </th>
+                        <th className={getSortClass('creationDate')} onClick={() => handleSort('creationDate')}>
+                            Дата Создания
+                        </th>
+                        <th className={getSortClass('organization')} onClick={() => handleSort('organization')}>
+                            Организация
+                        </th>
+                        <th className={getSortClass('salary')} onClick={() => handleSort('salary')}>
+                            Зарплата
+                        </th>
+                        <th className={getSortClass('rating')} onClick={() => handleSort('rating')}>
+                            Рейтинг
+                        </th>
+                        <th className={getSortClass('startDate')} onClick={() => handleSort('startDate')}>
+                            Дата начала работы
+                        </th>
+                        <th className={getSortClass('position')} onClick={() => handleSort('position')}>
+                            Должность
+                        </th>
+                        <th className={getSortClass('status')} onClick={() => handleSort('status')}>
+                            Статус
+                        </th>
+                        <th className={getSortClass('person')} onClick={() => handleSort('person')}>
+                            Паспорт
+                        </th>
+                    </tr>
                 </thead>
                 <tbody>
-                {paginatedItems.length > 0 ? (
-                    paginatedItems.map((item: Worker) => (
-                        <TableRow key={item.id} worker={item}/>
-                    ))
-                ) : (
-                    <tr>
-                        <td colSpan={11}>
-                            Нет данных, соответствующих фильтру
-                        </td>
-                    </tr>
-                )}
+                    {paginatedItems.length > 0 ? (
+                        paginatedItems.map((item: Worker) => (
+                            <TableRow key={item.id} worker={item} />
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={11}>
+                                Нет данных, соответствующих фильтру
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
 
             <div className="pagination-controls">
-                <div style={{textAlign: "left", width: "100%"}}>
+                <div style={{ textAlign: "left", width: "100%" }}>
                     Страница <b>{pagination.currentPage}</b> из {totalPages}
                 </div>
-                <ActionButton text={'<<'} action={() => handlePageChange(1)} buttonClass={'pagination-button'}/>
+                <ActionButton text={'<<'} action={() => handlePageChange(1)} buttonClass={'pagination-button'} />
                 <ActionButton text={'<'} action={() => handlePageChange(pagination.currentPage - 1)}
-                              buttonClass={'pagination-button'}/>
+                    buttonClass={'pagination-button'} />
                 <ActionButton text={'>'} action={() => handlePageChange(pagination.currentPage + 1)}
-                              buttonClass={'pagination-button'}/>
+                    buttonClass={'pagination-button'} />
                 <ActionButton text={'>>'} action={() => handlePageChange(totalPages)}
-                              buttonClass={'pagination-button'}/>
-                <div style={{textAlign: "right", width: "100%"}}>
+                    buttonClass={'pagination-button'} />
+                <div style={{ textAlign: "right", width: "100%" }}>
                     Всего элементов: <b>{items.length}</b>
                 </div>
             </div>

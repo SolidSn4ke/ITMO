@@ -29,7 +29,6 @@ public class WorkerBean {
     public boolean add(WorkerEntity worker) {
         this.message = workerEJB.addToDB(worker).getMessage();
         return this.message.equals("OK");
-
     }
 
     public boolean delete(Long id) {

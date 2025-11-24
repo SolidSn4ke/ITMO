@@ -2,18 +2,88 @@ package com.example.back.data;
 
 import java.time.LocalDate;
 
+import com.example.back.entities.AddressEntity;
+import com.example.back.entities.CoordinatesEntity;
+import com.example.back.entities.LocationEntity;
+import com.example.back.entities.OrganizationEntity;
+import com.example.back.entities.PersonEntity;
+import com.example.back.entities.WorkerEntity;
+
 public class Worker {
-    private Integer id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
-    private String name; //Поле не может быть null, Строка не может быть пустой
-    private Coordinates coordinates; //Поле не может быть null
-    private java.time.LocalDate creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
-    private Organization organization; //Поле может быть null
-    private Double salary; //Поле может быть null, Значение поля должно быть больше 0
-    private Double rating; //Поле может быть null, Значение поля должно быть больше 0
-    private java.time.LocalDate startDate; //Поле не может быть null
-    private Position position; //Поле не может быть null
-    private Status status; //Поле может быть null
-    private Person person; //Поле не может быть null
+    private Integer id; // Поле не может быть null, Значение поля должно быть больше 0, Значение этого
+                        // поля должно быть уникальным, Значение этого поля должно генерироваться
+                        // автоматически
+    private String name; // Поле не может быть null, Строка не может быть пустой
+    private Coordinates coordinates; // Поле не может быть null
+    private java.time.LocalDate creationDate; // Поле не может быть null, Значение этого поля должно генерироваться
+                                              // автоматически
+    private Organization organization; // Поле может быть null
+    private Double salary; // Поле может быть null, Значение поля должно быть больше 0
+    private Double rating; // Поле может быть null, Значение поля должно быть больше 0
+    private java.time.LocalDate startDate; // Поле не может быть null
+    private Position position; // Поле не может быть null
+    private Status status; // Поле может быть null
+    private Person person; // Поле не может быть null
+
+    public WorkerEntity toEntity() {
+        WorkerEntity we = new WorkerEntity();
+
+        we.setName(this.name);
+        we.setStartDate(this.startDate);
+        we.setSalary(this.salary == null ? null : this.salary);
+        we.setRating(this.rating == null ? null : this.rating);
+        we.setPosition(this.position);
+        we.setStatus(this.status == null ? null : this.status);
+
+        CoordinatesEntity ce = new CoordinatesEntity();
+        ce.setX(this.coordinates.getX());
+        ce.setY(this.coordinates.getY());
+
+        we.setCoordinates(ce);
+
+        OrganizationEntity oe = null;
+        if (this.organization != null) {
+            oe = new OrganizationEntity();
+            oe.setEmployeesCount(this.organization.getEmployeesCount());
+            oe.setAnnualTurnover(this.organization.getAnnualTurnover() == null ? null : this.organization.getAnnualTurnover());
+            oe.setOrganizationType(this.organization.getOrganizationType());
+            oe.setRating(this.organization.getRating());
+
+            AddressEntity ae = new AddressEntity();
+            LocationEntity le = new LocationEntity();
+            le.setX(this.organization.getOfficialAddress().getTown().getX());
+            le.setY(this.organization.getOfficialAddress().getTown().getY());
+            le.setZ(this.organization.getOfficialAddress().getTown().getZ());
+            le.setName(this.organization.getOfficialAddress().getTown().getName());
+
+            ae.setTown(le);
+            ae.setStreet(this.organization.getOfficialAddress().getStreet());
+            ae.setZipCode(this.organization.getOfficialAddress().getZipCode());
+
+            oe.setOfficialAddress(ae);
+        }
+        we.setOrganization(oe);
+
+        PersonEntity pe = new PersonEntity();
+        pe.setPassportID(this.person.getPassportID());
+        pe.setEyeColor(this.person.getEyeColor() == null ? null : this.person.getEyeColor());
+        pe.setHairColor(this.person.getHairColor());
+        pe.setNationality(this.person.getNationality() == null ? null : this.person.getNationality());
+
+        LocationEntity le = null;
+        if (this.person.getLocation() != null) {
+            le = new LocationEntity();
+            le.setX(this.person.getLocation().getX());
+            le.setY(this.person.getLocation().getY());
+            le.setZ(this.person.getLocation().getZ());
+            le.setName(this.person.getLocation().getName());
+        }
+        pe.setLocation(le);
+
+        we.setPerson(pe);
+
+        return we;
+    }
 
     public Integer getId() {
         return id;

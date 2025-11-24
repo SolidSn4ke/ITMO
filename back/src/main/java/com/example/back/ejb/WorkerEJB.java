@@ -19,18 +19,16 @@ public class WorkerEJB {
     @Inject
     WorkerBean wb;
 
-    public ResponseDTO addToDB(WorkerEntity worker) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
-        EntityManager em = emf.createEntityManager();
+    @PersistenceContext(unitName = "examplePU")
+    EntityManager em;
 
+    public ResponseDTO addToDB(WorkerEntity worker) {
         if (em.find(PersonEntity.class, worker.getPerson().getPassportID()) != null) {
             return new ResponseDTO().setMessage("Человек с таким паспортом уже существует!");
         }
 
         try {
             em.merge(worker);
-            em.close();
-            emf.close();
         } catch (ConstraintViolationException e) {
             return new ResponseDTO().setMessage(e.getConstraintViolations().toString());
         }
@@ -39,9 +37,6 @@ public class WorkerEJB {
     }
 
     public ResponseDTO deleteById(Long id) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
-        EntityManager em = emf.createEntityManager();
-
         try {
             WorkerEntity worker = em.find(WorkerEntity.class, id);
 
@@ -77,24 +72,18 @@ public class WorkerEJB {
             return new ResponseDTO().setMessage("ОК");
         } catch (QueryTimeoutException e) {
             return new ResponseDTO().setMessage(e.getMessage());
-        } finally {
-            em.close();
-            emf.close();
         }
     }
 
 
     public ResponseDTO updateById(Long id, WorkerEntity newWorker) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
-        EntityManager em = emf.createEntityManager();
-
         WorkerEntity oldWorker = em.find(WorkerEntity.class, id);
 
         if (oldWorker != null) {
             try {
                 newWorker.setId(id);
                 newWorker.setCreationDate(oldWorker.getCreationDate());
-                if (newWorker.getOrganization() != null) {
+                if (newWorker.getOrganization() != null) { // TODO: fix logic
                     newWorker.getOrganization().setId(oldWorker.getOrganization().getId());
                 }
                 em.merge(newWorker);
@@ -109,8 +98,6 @@ public class WorkerEJB {
     }
 
     public ResponseDTO getAllWorkers(Map<String, Pair<String, ComparisonOperations>> filters) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
-        EntityManager em = emf.createEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
         FilterBuilder fb = new FilterBuilder(cb);
@@ -140,9 +127,6 @@ public class WorkerEJB {
     }
 
     public ResponseDTO getAllWorkersSorted(String columnName, boolean isAscending) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
-        EntityManager em = emf.createEntityManager();
-
         String direction = isAscending ? "asc" : "desc";
         Query query = em.createQuery("select entity from WorkerEntity entity order by entity." + columnName + " " + direction);
 
@@ -150,18 +134,12 @@ public class WorkerEJB {
     }
 
     public ResponseDTO getAllWorkersWithSpecificRating(Integer rating) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
-        EntityManager em = emf.createEntityManager();
-
         Query query = em.createQuery("select entity from WorkerEntity entity where entity.rating < :rating");
         query.setParameter("rating", rating);
         return new ResponseDTO().setListOfWorkers(query.getResultList());
     }
 
     public ResponseDTO addOrganizationToWorker(Long id, Long organizationID) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
-        EntityManager em = emf.createEntityManager();
-
         try {
             OrganizationEntity organization = em.find(OrganizationEntity.class, organizationID);
             WorkerEntity worker = em.find(WorkerEntity.class, id);

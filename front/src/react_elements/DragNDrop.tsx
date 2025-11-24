@@ -1,13 +1,15 @@
 import Papa, { ParseResult } from "papaparse";
 import Worker, { FlatWorker } from "../ts/data/Worker";
 import { FileUploader } from "react-drag-drop-files";
+import axios from "axios";
+import { showInfoNotification } from "./Main";
 
 interface DragNDropProps {
     types: [string];
-    onWorkersLoaded?: (workers: Worker[]) => void;
+    url: string;
 }
 
-function DragNDrop({ types, onWorkersLoaded }: DragNDropProps) {
+function DragNDrop({ types, url }: DragNDropProps) {
 
     const handleChange = (file: any) => {
 
@@ -19,17 +21,15 @@ function DragNDrop({ types, onWorkersLoaded }: DragNDropProps) {
 
                 const workers: Worker[] = results.data
                     .map((row: FlatWorker) => {
-                        // convert plain object -> FlatWorker instance
                         const flat = Object.assign(new FlatWorker(), row);
-                        return flat.toWorker();
+                        return flat.toWorker()?.toJSON();
                     })
-                    .filter((w): w is Worker => w !== undefined); // remove invalid rows
+                    .filter((w): w is Worker => w !== undefined);
 
-            
+
                 console.log("Workers loaded:", workers);
 
-                if (onWorkersLoaded)
-                    onWorkersLoaded(workers);
+                handleImport(workers);
             },
 
             error: (error) => {
@@ -37,6 +37,17 @@ function DragNDrop({ types, onWorkersLoaded }: DragNDropProps) {
             }
         });
     };
+
+    const handleImport = async (workers: Worker[]) => {
+        try {
+            let response = await axios.post(url, workers, { withCredentials: true });
+            if (response.status === 200) {
+                showInfoNotification("Работники успешно импортированы.");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <FileUploader
