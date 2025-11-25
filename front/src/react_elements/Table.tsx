@@ -7,6 +7,7 @@ import SearchBar from "./SearchBar";
 import ActionButton from "./ActionButton";
 import magnifying_glass from "../resources/magnifying_glass.svg";
 import send_icon from "../resources/continue.svg"
+import import_icon from "../resources/import.svg"
 import plus from "../resources/plus.svg";
 import { useAppDispatch, useAppSelector } from "../ts/redux/hooks";
 import { setSearchValue, updateViewMode } from "../ts/redux/workerSlice";
@@ -279,7 +280,7 @@ function Table({ items, controls }: WorkerWrapper) {
                     buttonClass={"action-button"}
                     tooltip={"Переместить работника в другую организации"}
                 />
-                <ActionButton action={() => setSpecialMode('import')} buttonClass={"action-button"} />
+                <ActionButton action={() => setSpecialMode('import')} buttonClass={"action-button"} icon={import_icon} tooltip={"Импорт"}/>
             </div> : undefined}
 
             <div className="pagination-controls">

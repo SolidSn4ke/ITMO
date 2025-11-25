@@ -31,7 +31,7 @@ public class DBActionsEndpoints {
     public Response add(WorkerEntity worker) {
         workerBean.add(worker);
         if (workerBean.getMessage().equals("OK")) {
-            return Response.ok().build();
+            return Response.ok().entity(workerBean.getWorkers().get(0)).build();
         } else {
             return Response.accepted().entity(workerBean.getMessage()).build();
         }

@@ -26,7 +26,9 @@ public class WorkerBean {
     private WorkerEJB workerEJB;
 
     public boolean add(WorkerEntity worker) {
-        this.message = workerEJB.addToDB(worker).getMessage();
+        ResponseDTO<WorkerEntity> response = workerEJB.addToDB(worker);
+        this.message = response.getMessage();
+        this.workers = response.getListOfEntities();
         return this.message.equals("OK");
     }
 

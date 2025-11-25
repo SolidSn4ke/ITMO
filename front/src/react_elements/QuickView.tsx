@@ -5,11 +5,13 @@ import ActionButton from "./ActionButton";
 import trash_can from "../resources/trash_can.svg"
 import change from "../resources/change.svg"
 import profile_placeholder from "../resources/profile_placeholder.svg"
+import history_icon from "../resources/history.svg"
 import axios from "axios";
 import { useAppDispatch } from "../ts/redux/hooks";
 import { updateBuildMode, updateViewMode, updateWorkerView } from "../ts/redux/workerSlice";
 import 'react-toastify/dist/ReactToastify.css';
 import { showErrorNotification, showInfoNotification } from "./Main";
+import small_profile_placeholder from "../resources/small_profile.svg";
 
 interface QuickViewProps {
     worker: Worker | null
@@ -25,7 +27,7 @@ function QuickView({ worker }: QuickViewProps) {
         worker = null
     }
 
-    
+
     React.useEffect(() => {
         if (viewMode !== "history") return;
 
@@ -43,8 +45,8 @@ function QuickView({ worker }: QuickViewProps) {
             }
         };
 
-        load(); 
-        const interval = setInterval(load, 5000); 
+        load();
+        const interval = setInterval(load, 5000);
 
         return () => clearInterval(interval);
     }, [viewMode]);
@@ -164,7 +166,7 @@ function QuickView({ worker }: QuickViewProps) {
                             tooltip={"Изменить"} />
                         <ActionButton buttonClass={"action-button-red"} action={handleDelete} icon={trash_can}
                             tooltip={"Удалить"} />
-                        <ActionButton buttonClass={'action-button'} action={() => setViewMode("history")} icon={""} tooltip={"История импорта"} />
+                        <ActionButton buttonClass={'action-button'} action={() => setViewMode("history")} icon={history_icon} tooltip={"История импорта"} />
                     </div>
                 </>
             }
@@ -211,7 +213,7 @@ function QuickView({ worker }: QuickViewProps) {
                         <ActionButton
                             buttonClass={"action-button"}
                             action={() => setViewMode("profile")}
-                            icon={""}
+                            icon={small_profile_placeholder}
                             tooltip={"Профиль работника"}
                         />
                     </div>

@@ -22,18 +22,20 @@ public class WorkerEJB {
     @PersistenceContext(unitName = "examplePU")
     EntityManager em;
 
-    public ResponseDTO<Object> addToDB(WorkerEntity worker) {
+    public ResponseDTO<WorkerEntity> addToDB(WorkerEntity worker) {
         if (em.find(PersonEntity.class, worker.getPerson().getPassportID()) != null) {
-            return new ResponseDTO<Object>().setMessage("Человек с таким паспортом уже существует!");
+            return new ResponseDTO<WorkerEntity>().setMessage("Человек с таким паспортом уже существует!");
         }
 
         try {
             em.merge(worker);
         } catch (ConstraintViolationException e) {
-            return new ResponseDTO<Object>().setMessage(e.getConstraintViolations().toString());
+            return new ResponseDTO<WorkerEntity>().setMessage(e.getConstraintViolations().toString());
         }
 
-        return new ResponseDTO<Object>().setMessage("OK");
+        Query query = em.createQuery("select e from WorkerEntity e where e.person.passportID = :passport");
+        query.setParameter("passport", worker.getPerson().getPassportID());
+        return new ResponseDTO<WorkerEntity>().setMessage("OK").setList(query.getResultList());
     }
 
     public ResponseDTO<Object> deleteById(Long id) {
@@ -47,16 +49,25 @@ public class WorkerEJB {
             worker.setOrganization(null);
             em.remove(worker);
 
-            if (organization != null && em.createQuery("select entity from WorkerEntity entity where entity.organization.id = :organizationID").setParameter("organizationID", organization.getId()).getResultList().size() == 0) {
+            if (organization != null && em
+                    .createQuery(
+                            "select entity from WorkerEntity entity where entity.organization.id = :organizationID")
+                    .setParameter("organizationID", organization.getId()).getResultList().size() == 0) {
                 AddressEntity address = organization.getOfficialAddress();
                 em.remove(organization);
 
-                if (em.createQuery("select entity from PersonEntity entity where entity.location.x = :x and entity.location.y = :y and entity.location.z = :z").setParameter("x", address.getTown().getX()).setParameter("y", address.getTown().getY()).setParameter("z", address.getTown().getZ()).getResultList().size() == 0) {
+                if (em.createQuery(
+                        "select entity from PersonEntity entity where entity.location.x = :x and entity.location.y = :y and entity.location.z = :z")
+                        .setParameter("x", address.getTown().getX()).setParameter("y", address.getTown().getY())
+                        .setParameter("z", address.getTown().getZ()).getResultList().size() == 0) {
                     em.remove(address);
                 }
             }
 
-            if (em.createQuery("select entity from WorkerEntity entity where entity.coordinates.x = :x and entity.coordinates.y = :y").setParameter("x", coordinates.getX()).setParameter("y", coordinates.getY()).getResultList().size() == 0) {
+            if (em.createQuery(
+                    "select entity from WorkerEntity entity where entity.coordinates.x = :x and entity.coordinates.y = :y")
+                    .setParameter("x", coordinates.getX()).setParameter("y", coordinates.getY()).getResultList()
+                    .size() == 0) {
                 em.remove(coordinates);
             }
 
@@ -64,8 +75,14 @@ public class WorkerEJB {
             person.setLocation(null);
             em.remove(person);
 
-            if (location != null && em.createQuery("select entity from AddressEntity entity where entity.town.x = :x and entity.town.y = :y and entity.town.z = :z").setParameter("x", location.getX()).setParameter("y", location.getY()).setParameter("z", location.getZ()).getResultList().size() == 0 &&
-                    em.createQuery("select entity from PersonEntity entity where entity.location.x = :x and entity.location.y = :y and entity.location.z = :z").setParameter("x", location.getX()).setParameter("y", location.getY()).setParameter("z", location.getZ()).getResultList().size() == 0) {
+            if (location != null && em.createQuery(
+                    "select entity from AddressEntity entity where entity.town.x = :x and entity.town.y = :y and entity.town.z = :z")
+                    .setParameter("x", location.getX()).setParameter("y", location.getY())
+                    .setParameter("z", location.getZ()).getResultList().size() == 0 &&
+                    em.createQuery(
+                            "select entity from PersonEntity entity where entity.location.x = :x and entity.location.y = :y and entity.location.z = :z")
+                            .setParameter("x", location.getX()).setParameter("y", location.getY())
+                            .setParameter("z", location.getZ()).getResultList().size() == 0) {
                 em.remove(location);
             }
 
@@ -75,7 +92,6 @@ public class WorkerEJB {
         }
     }
 
-
     public ResponseDTO<Object> updateById(Long id, WorkerEntity newWorker) {
         WorkerEntity oldWorker = em.find(WorkerEntity.class, id);
 
@@ -83,7 +99,7 @@ public class WorkerEJB {
             try {
                 newWorker.setId(id);
                 newWorker.setCreationDate(oldWorker.getCreationDate());
-                if (newWorker.getOrganization() != null) { // TODO: fix logic
+                if (newWorker.getOrganization() != null && oldWorker.getOrganization() != null) {
                     newWorker.getOrganization().setId(oldWorker.getOrganization().getId());
                 }
                 em.merge(newWorker);
@@ -110,7 +126,8 @@ public class WorkerEJB {
                     .setName(filters.get("name").getLeft(), filters.get("name").getRight())
                     .setX(Double.valueOf(filters.get("x").getLeft()), filters.get("x").getRight())
                     .setY(Integer.valueOf(filters.get("y").getLeft()), filters.get("y").getRight())
-                    .setOrganizationId(Integer.valueOf(filters.get("organizationId").getLeft()), filters.get("organizationId").getRight())
+                    .setOrganizationId(Integer.valueOf(filters.get("organizationId").getLeft()),
+                            filters.get("organizationId").getRight())
                     .setCreationDate(filters.get("creationDate").getLeft(), filters.get("creationDate").getRight())
                     .setSalary(Double.valueOf(filters.get("salary").getLeft()), filters.get("salary").getRight())
                     .setRating(Double.valueOf(filters.get("rating").getLeft()), filters.get("rating").getRight())
@@ -128,7 +145,8 @@ public class WorkerEJB {
 
     public ResponseDTO<WorkerEntity> getAllWorkersSorted(String columnName, boolean isAscending) {
         String direction = isAscending ? "asc" : "desc";
-        Query query = em.createQuery("select entity from WorkerEntity entity order by entity." + columnName + " " + direction);
+        Query query = em
+                .createQuery("select entity from WorkerEntity entity order by entity." + columnName + " " + direction);
 
         return new ResponseDTO<WorkerEntity>().setList(query.getResultList());
     }
