@@ -41,6 +41,9 @@ public class WorkerEJB {
     public ResponseDTO<Object> deleteById(Long id) {
         try {
             WorkerEntity worker = em.find(WorkerEntity.class, id);
+            if (worker == null) {
+                return new ResponseDTO<Object>().setMessage("Работник не найден");
+            }
 
             CoordinatesEntity coordinates = worker.getCoordinates();
             OrganizationEntity organization = worker.getOrganization();
@@ -54,6 +57,7 @@ public class WorkerEJB {
                             "select entity from WorkerEntity entity where entity.organization.id = :organizationID")
                     .setParameter("organizationID", organization.getId()).getResultList().size() == 0) {
                 AddressEntity address = organization.getOfficialAddress();
+                organization.setOfficialAddress(null);
                 em.remove(organization);
 
                 if (em.createQuery(

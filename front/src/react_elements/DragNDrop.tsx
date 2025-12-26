@@ -47,6 +47,7 @@ function DragNDrop({ types, url }: DragNDropProps) {
                 showErrorNotification("Не удалось импортировать файл")
             }
         } catch (error) {
+            showErrorNotification("Не удалось импортировать файл")
             console.log(error);
         }
     }

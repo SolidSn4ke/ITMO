@@ -12,16 +12,19 @@
         <class>com.example.back.entities.ImportHistoryEntity</class>
         <properties>
 
-            <property name="eclipselink.target-server" value="WildFly"/>
-            <property name="hibernate.show_sql" value="false"/>
-            <property name="hibernate.format_sql" value="false"/>
+            <property name="eclipselink.target-server" value="WildFly" />
+            <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.format_sql" value="false" />
 
-            <property name="eclipselink.cascade-persist" value="true"/>
-            <property name="eclipselink.cascade-remove" value="true"/>
-            <property name="eclipselink.orphan-removal" value="true"/>
+            <property name="eclipselink.cascade-persist" value="true" />
+            <property name="eclipselink.cascade-remove" value="true" />
+            <property name="eclipselink.orphan-removal" value="true" />
 
-            <property name="eclipselink.logging.level" value="FINER"/>
-            <property name="eclipselink.ddl-generation" value="none"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="database" />
+            <property name="eclipselink.deploy-on-startup" value="true" />
+
+            <property name="eclipselink.logging.level" value="FINER" />
+            <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
         </properties>
     </persistence-unit>
 </persistence>
