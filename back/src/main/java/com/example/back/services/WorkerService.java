@@ -1,5 +1,6 @@
-package com.example.back.service;
+package com.example.back.services;
 
+import com.example.back.config.LogCacheStats;
 import com.example.back.model.dto.ResponseDTO;
 import com.example.back.model.ejb.WorkerEJB;
 import com.example.back.model.entities.WorkerEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Named("wb")
 @ApplicationScoped
+@LogCacheStats
 public class WorkerService {
     private List<WorkerEntity> workers;
     private String message;

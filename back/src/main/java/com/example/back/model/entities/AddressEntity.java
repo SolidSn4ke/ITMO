@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "address")
+@Cacheable(true)
 public class AddressEntity implements Serializable {
     @Id
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)

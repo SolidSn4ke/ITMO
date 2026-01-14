@@ -2,7 +2,7 @@ package com.example.back.model.ejb;
 
 import com.example.back.model.dto.ResponseDTO;
 import com.example.back.model.entities.*;
-import com.example.back.service.WorkerService;
+import com.example.back.services.WorkerService;
 import com.example.back.util.builder.FilterBuilder;
 import com.example.back.util.types.ComparisonOperations;
 import com.example.back.util.types.Pair;

@@ -6,8 +6,8 @@ import com.example.back.exceptions.importing.ImportException;
 import com.example.back.model.dto.Worker;
 import com.example.back.model.entities.ImportHistoryEntity;
 import com.example.back.model.entities.WorkerEntity;
-import com.example.back.service.ImportHistoryService;
-import com.example.back.service.WorkerService;
+import com.example.back.services.ImportHistoryService;
+import com.example.back.services.WorkerService;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;

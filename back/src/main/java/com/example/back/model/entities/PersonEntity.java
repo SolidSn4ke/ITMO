@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "person")
+@Cacheable(true)
 public class PersonEntity {
     @Enumerated(EnumType.STRING)
     private Color eyeColor;

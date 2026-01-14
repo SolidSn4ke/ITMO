@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "organization")
+@Cacheable(true)
 public class OrganizationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,11 +1,13 @@
 package com.example.back.model.entities;
 
+import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "coordinates")
+@Cacheable(true)
 public class CoordinatesEntity {
     @Id
     private double x;

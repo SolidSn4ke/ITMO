@@ -32,6 +32,17 @@
 
             <property name="eclipselink.logging.level" value="FINER" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
+
+            <property name="eclipselink.cache.shared.default" value="true" />
+            <property name="eclipselink.cache.type.default" value="Full" />
+            <property name="eclipselink.cache.type" value="jakarta.persistence.SharedCacheMode.ALL" />
+            <property name="eclipselink.cache.provider"
+                value="org.infinispan.jcache.embedded.JCachingProvider" />
+            <property name="eclipselink.logging.level.cache" value="FINE" />
+            <property name="eclipselink.statistics" value="true" />
+            <property name="eclipselink.session-event-listener"
+                value="com.example.back.util.listeners.SqlQueryListener" />
+
         </properties>
     </persistence-unit>
 </persistence>

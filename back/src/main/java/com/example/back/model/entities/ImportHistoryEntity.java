@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "import_history")
+@Cacheable(true)
 public class ImportHistoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

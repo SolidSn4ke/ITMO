@@ -1,5 +1,6 @@
 package com.example.back.model.entities;
 
+import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,6 +10,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "location")
+@Cacheable(true)
 public class LocationEntity implements Serializable {
     @Id
     @Column(name = "x")
