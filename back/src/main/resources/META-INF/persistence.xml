@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
-    <persistence-unit name="examplePU">
+    <persistence-unit name="examplePU" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-        <jta-data-source>java:jboss/exampleDS</jta-data-source>
-        <class>com.example.back.entities.WorkerEntity</class>
-        <class>com.example.back.entities.OrganizationEntity</class>
-        <class>com.example.back.entities.PersonEntity</class>
-        <class>com.example.back.entities.LocationEntity</class>
-        <class>com.example.back.entities.AddressEntity</class>
-        <class>com.example.back.entities.CoordinatesEntity</class>
-        <class>com.example.back.entities.ImportHistoryEntity</class>
+
+        <class>com.example.back.model.entities.WorkerEntity</class>
+        <class>com.example.back.model.entities.OrganizationEntity</class>
+        <class>com.example.back.model.entities.PersonEntity</class>
+        <class>com.example.back.model.entities.LocationEntity</class>
+        <class>com.example.back.model.entities.AddressEntity</class>
+        <class>com.example.back.model.entities.CoordinatesEntity</class>
+        <class>com.example.back.model.entities.ImportHistoryEntity</class>
         <properties>
+            <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
+            <property name="jakarta.persistence.jdbc.url"
+                value="jdbc:postgresql://localhost:5432/workers" />
+            <property name="jakarta.persistence.jdbc.user" value="postgres" />
+            <property name="jakarta.persistence.jdbc.password" value="postgres" />
 
             <property name="eclipselink.target-server" value="WildFly" />
             <property name="hibernate.show_sql" value="false" />
@@ -22,6 +27,8 @@
 
             <property name="eclipselink.ddl-generation.output-mode" value="database" />
             <property name="eclipselink.deploy-on-startup" value="true" />
+            <property name="eclipselink.session.customizer"
+                value="com.example.back.config.EclipselinkCustomizer" />
 
             <property name="eclipselink.logging.level" value="FINER" />
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />

@@ -20,10 +20,17 @@ public class WorkerEJB {
     @Inject
     WorkerService wb;
 
-    @PersistenceContext(unitName = "examplePU")
-    EntityManager em;
+    // @PersistenceContext(unitName = "examplePU")
+    // EntityManager em;
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("examplePU");
+
+    private EntityManager getEntityManager() {
+        return emf.createEntityManager();
+    }
 
     public ResponseDTO<WorkerEntity> addToDB(WorkerEntity worker) {
+        EntityManager em = getEntityManager();
         if (em.find(PersonEntity.class, worker.getPerson().getPassportID()) != null) {
             return new ResponseDTO<WorkerEntity>().setMessage("Человек с таким паспортом уже существует!");
         }
@@ -40,6 +47,7 @@ public class WorkerEJB {
     }
 
     public ResponseDTO<Object> deleteById(Long id) {
+        EntityManager em = getEntityManager();
         try {
             WorkerEntity worker = em.find(WorkerEntity.class, id);
             if (worker == null) {
@@ -98,6 +106,7 @@ public class WorkerEJB {
     }
 
     public ResponseDTO<Object> updateById(Long id, WorkerEntity newWorker) {
+        EntityManager em = getEntityManager();
         WorkerEntity oldWorker = em.find(WorkerEntity.class, id);
 
         if (oldWorker != null) {
@@ -119,6 +128,7 @@ public class WorkerEJB {
     }
 
     public ResponseDTO<WorkerEntity> getAllWorkers(Map<String, Pair<String, ComparisonOperations>> filters) {
+        EntityManager em = getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
         FilterBuilder fb = new FilterBuilder(cb);
@@ -149,6 +159,7 @@ public class WorkerEJB {
     }
 
     public ResponseDTO<WorkerEntity> getAllWorkersSorted(String columnName, boolean isAscending) {
+        EntityManager em = getEntityManager();
         String direction = isAscending ? "asc" : "desc";
         Query query = em
                 .createQuery("select entity from WorkerEntity entity order by entity." + columnName + " " + direction);
@@ -157,12 +168,14 @@ public class WorkerEJB {
     }
 
     public ResponseDTO<WorkerEntity> getAllWorkersWithSpecificRating(Integer rating) {
+        EntityManager em = getEntityManager();
         Query query = em.createQuery("select entity from WorkerEntity entity where entity.rating < :rating");
         query.setParameter("rating", rating);
         return new ResponseDTO<WorkerEntity>().setList(query.getResultList());
     }
 
     public ResponseDTO<Object> addOrganizationToWorker(Long id, Long organizationID) {
+        EntityManager em = getEntityManager();
         try {
             OrganizationEntity organization = em.find(OrganizationEntity.class, organizationID);
             WorkerEntity worker = em.find(WorkerEntity.class, id);
