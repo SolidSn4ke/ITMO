@@ -1,11 +1,20 @@
 package com.example.back.model.dto;
 
 public class Organization {
-    private Address officialAddress; //Поле не может быть null
-    private Long annualTurnover; //Поле может быть null, Значение поля должно быть больше 0
-    private long employeesCount; //Значение поля должно быть больше 0
-    private double rating; //Значение поля должно быть больше 0
-    private OrganizationType organizationType; //Поле не может быть null
+    private Address officialAddress; // Поле не может быть null
+    private Long annualTurnover; // Поле может быть null, Значение поля должно быть больше 0
+    private long employeesCount; // Значение поля должно быть больше 0
+    private double rating; // Значение поля должно быть больше 0
+    private OrganizationType organizationType; // Поле не может быть null
+
+    public Organization(Address officialAddress, Long annualTurnover, long employeesCount, double rating,
+            OrganizationType organizationType) {
+        this.officialAddress = officialAddress;
+        this.annualTurnover = annualTurnover;
+        this.employeesCount = employeesCount;
+        this.rating = rating;
+        this.organizationType = organizationType;
+    }
 
     public Address getOfficialAddress() {
         return officialAddress;

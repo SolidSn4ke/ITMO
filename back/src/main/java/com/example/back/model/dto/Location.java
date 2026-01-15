@@ -4,7 +4,14 @@ public class Location {
     private double x;
     private int y;
     private int z;
-    private String name; //Поле не может быть null
+    private String name; // Поле не может быть null
+
+    public Location(double x, int y, int z, String name) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.name = name;
+    }
 
     public double getX() {
         return x;

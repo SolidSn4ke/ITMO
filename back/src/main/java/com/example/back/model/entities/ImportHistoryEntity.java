@@ -15,6 +15,8 @@ public class ImportHistoryEntity {
     @Column(name = "num_of_entities_imported")
     private Long numOfEntitiesImported;
 
+    private String filePath;
+
     public Long getId() {
         return id;
     }
@@ -37,5 +39,13 @@ public class ImportHistoryEntity {
 
     public void setNumOfEntitiesImported(Long numOfEntitiesImported) {
         this.numOfEntitiesImported = numOfEntitiesImported;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 }

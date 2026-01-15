@@ -12,6 +12,7 @@ import { updateBuildMode, updateViewMode, updateWorkerView } from "../ts/redux/w
 import 'react-toastify/dist/ReactToastify.css';
 import { showErrorNotification, showInfoNotification } from "./Main";
 import small_profile_placeholder from "../resources/small_profile.svg";
+import { saveAs } from 'file-saver';
 
 interface QuickViewProps {
     worker: Worker | null
@@ -19,7 +20,7 @@ interface QuickViewProps {
 
 function QuickView({ worker }: QuickViewProps) {
     const [viewMode, setViewMode] = useState<"profile" | "history">("profile")
-    const [importHistory, setImportHistory] = useState<{ id: number; successful: boolean; numOfEntitiesImported: number }[]>([]);
+    const [importHistory, setImportHistory] = useState<{ id: number; successful: boolean; numOfEntitiesImported: number, filePath: string }[]>([]);
 
     const dispatch = useAppDispatch()
 
@@ -90,6 +91,21 @@ function QuickView({ worker }: QuickViewProps) {
             } catch (e) {
                 console.log(e)
             }
+
+        }
+    }
+
+    const downloadFile = async (filePath: string) => {
+        try {
+            filePath = filePath.split('/').pop()!
+            const response = await axios.post(`http://localhost:8080/back-1.0-SNAPSHOT/rest-server/actions/download-file/${filePath}`,
+                {},
+                { responseType: 'blob', withCredentials: true });
+            if (response.status === 200) {
+                const blob = new Blob([response.data], { type: 'application/octet-stream' });
+                saveAs(blob, "1.csv")
+            }
+        } catch (e) {
 
         }
     }
@@ -192,6 +208,18 @@ function QuickView({ worker }: QuickViewProps) {
                                             {item.successful ? "Успех" : "Ошибка"}
                                         </td>
                                         <td>{item.numOfEntitiesImported}</td>
+                                        <td><a
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                downloadFile(item.filePath);
+                                            }}
+                                            style={{
+                                                cursor: 'pointer',
+                                                color: '#007bff',
+                                                textDecoration: 'underline'
+                                            }}
+                                        >скачать</a></td>
                                     </tr>
                                 ))
                             ) : (

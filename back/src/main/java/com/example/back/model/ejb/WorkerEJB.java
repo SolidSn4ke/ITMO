@@ -48,6 +48,7 @@ public class WorkerEJB {
 
     public ResponseDTO<Object> deleteById(Long id) {
         EntityManager em = getEntityManager();
+        em.getTransaction().begin();
         try {
             WorkerEntity worker = em.find(WorkerEntity.class, id);
             if (worker == null) {
@@ -99,8 +100,10 @@ public class WorkerEJB {
                 em.remove(location);
             }
 
+            em.getTransaction().commit();
             return new ResponseDTO<Object>().setMessage("ОК");
         } catch (QueryTimeoutException e) {
+            em.getTransaction().rollback();
             return new ResponseDTO<Object>().setMessage(e.getMessage());
         }
     }

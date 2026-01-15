@@ -1,9 +1,11 @@
 package com.example.back.rest.endpoints;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
-import com.example.back.exceptions.importing.ImportException;
-import com.example.back.model.dto.Worker;
+import com.example.back.model.dto.FileDTO;
 import com.example.back.model.entities.ImportHistoryEntity;
 import com.example.back.model.entities.WorkerEntity;
 import com.example.back.services.ImportHistoryService;
@@ -11,7 +13,6 @@ import com.example.back.services.WorkerService;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -41,20 +42,24 @@ public class DBActionsEndpoints {
     @Path("import-workers")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
-    public Response importWorkers(List<Worker> workers) {
-        ImportHistoryEntity importRecord = new ImportHistoryEntity();
-        workers.stream().map(Worker::toEntity).forEach(e -> {
-            workerBean.add(e);
-            if (!workerBean.getMessage().equals("OK")) {
-                throw new ImportException(
-                        String.format("Failed to import file: %s\nGot: %s", workerBean.getMessage(), e.toString()));
-            }
-        });
-        importRecord.setSuccessful(true);
-        importRecord.setNumOfEntitiesImported((long) workers.size());
-        importHistoryService.addImportRecord(importRecord);
+    public Response importWorkers(FileDTO file) {
+        try (InputStream fileIS = new ByteArrayInputStream(file.getContent())) {
+            importHistoryService.importFile(fileIS, file.getFileName());
+        } catch (IOException e) {
+            return Response.accepted().entity("Parse error").build();
+        }
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/download-file/{fileName}")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response downloadFile(@PathParam("fileName") String fileName) {
+        InputStream fileIS = importHistoryService.getFile(fileName);
+        if (fileIS == null) {
+            return Response.status(404).build();
+        }
+        return Response.ok(fileIS).build();
     }
 
     @POST
