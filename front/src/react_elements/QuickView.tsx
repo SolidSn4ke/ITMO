@@ -103,7 +103,7 @@ function QuickView({ worker }: QuickViewProps) {
                 { responseType: 'blob', withCredentials: true });
             if (response.status === 200) {
                 const blob = new Blob([response.data], { type: 'application/octet-stream' });
-                saveAs(blob, "1.csv")
+                saveAs(blob, filePath.split('-').pop()!);
             }
         } catch (e) {
 
@@ -208,7 +208,7 @@ function QuickView({ worker }: QuickViewProps) {
                                             {item.successful ? "Успех" : "Ошибка"}
                                         </td>
                                         <td>{item.numOfEntitiesImported}</td>
-                                        <td><a
+                                        <td>{item.successful ? <a
                                             href="#"
                                             onClick={(e) => {
                                                 e.preventDefault();
@@ -219,7 +219,8 @@ function QuickView({ worker }: QuickViewProps) {
                                                 color: '#007bff',
                                                 textDecoration: 'underline'
                                             }}
-                                        >скачать</a></td>
+                                        >скачать</a> : <></>}
+                                        </td>
                                     </tr>
                                 ))
                             ) : (

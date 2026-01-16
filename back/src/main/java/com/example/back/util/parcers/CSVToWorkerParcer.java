@@ -36,14 +36,13 @@ public class CSVToWorkerParcer implements Parcer<InputStream, List<Worker>> {
 
             CSVParser csvParser = CSVFormat.RFC4180
                     .builder()
-                    .setHeader() // Используем заголовки из первой строки
-                    .setSkipHeaderRecord(true) // Пропускаем строку заголовков
+                    .setHeader()
+                    .setSkipHeaderRecord(true)
                     .setIgnoreEmptyLines(true)
                     .setTrim(true)
                     .build()
                     .parse(reader);
 
-            // Проверяем заголовки
             System.out.println("CSV Headers: " + csvParser.getHeaderNames());
 
             for (CSVRecord record : csvParser) {
