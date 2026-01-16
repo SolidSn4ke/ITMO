@@ -23,17 +23,13 @@ public class MinIOClientService {
                 .build();
     }
 
-    public void uploadFile(InputStream fileIS, String objectName) {
-        try {
-            minioClient.putObject(PutObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object(objectName)
-                    .stream(fileIS, -1, 10485760)
-                    .contentType("application/octet-stream")
-                    .build());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void uploadFile(InputStream fileIS, String objectName) throws Exception {
+        minioClient.putObject(PutObjectArgs.builder()
+                .bucket(bucketName)
+                .object(objectName)
+                .stream(fileIS, -1, 10485760)
+                .contentType("application/octet-stream")
+                .build());
     }
 
     public void deleteFile(String objectName) {

@@ -28,7 +28,7 @@ public class ImportHistoryService {
     @Inject
     MinIOClientService minioService;
 
-    public boolean importFile(InputStream fileIS, String fileName) {
+    public ResponseDTO<Object> importFile(InputStream fileIS, String fileName) {
         byte[] fileBytes = null;
         try {
             fileBytes = fileIS.readAllBytes();
@@ -37,7 +37,7 @@ public class ImportHistoryService {
         }
         List<Worker> workers = new CSVToWorkerParcer().parse(new ByteArrayInputStream(fileBytes));
         ResponseDTO<Object> response = ihEJB.importFile(new ByteArrayInputStream(fileBytes), fileName, workers);
-        return response.getMessage().equals("OK");
+        return response;
     }
 
     public InputStream getFile(String fileName) {

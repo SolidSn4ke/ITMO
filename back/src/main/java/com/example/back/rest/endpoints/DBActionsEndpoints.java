@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.example.back.model.dto.FileDTO;
+import com.example.back.model.dto.ResponseDTO;
 import com.example.back.model.entities.ImportHistoryEntity;
 import com.example.back.model.entities.WorkerEntity;
 import com.example.back.services.ImportHistoryService;
@@ -44,7 +45,10 @@ public class DBActionsEndpoints {
     @Produces(MediaType.APPLICATION_JSON)
     public Response importWorkers(FileDTO file) {
         try (InputStream fileIS = new ByteArrayInputStream(file.getContent())) {
-            importHistoryService.importFile(fileIS, file.getFileName());
+            ResponseDTO<Object> response = importHistoryService.importFile(fileIS, file.getFileName());
+            if (!response.getMessage().equals("OK")) {
+                return Response.accepted().entity(response.getMessage()).build();
+            }
         } catch (IOException e) {
             return Response.accepted().entity("Parse error").build();
         }
