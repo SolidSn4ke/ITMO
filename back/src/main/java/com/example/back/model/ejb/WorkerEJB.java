@@ -13,6 +13,7 @@ import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.ConstraintViolationException;
 
+import java.util.List;
 import java.util.Map;
 
 @Stateless
@@ -31,6 +32,7 @@ public class WorkerEJB {
 
     public ResponseDTO<WorkerEntity> addToDB(WorkerEntity worker) {
         EntityManager em = getEntityManager();
+        em.getTransaction().begin();
         if (em.find(PersonEntity.class, worker.getPerson().getPassportID()) != null) {
             return new ResponseDTO<WorkerEntity>().setMessage("Человек с таким паспортом уже существует!");
         }
@@ -38,12 +40,15 @@ public class WorkerEJB {
         try {
             em.merge(worker);
         } catch (ConstraintViolationException e) {
+            em.getTransaction().rollback();
             return new ResponseDTO<WorkerEntity>().setMessage(e.getConstraintViolations().toString());
         }
 
         Query query = em.createQuery("select e from WorkerEntity e where e.person.passportID = :passport");
         query.setParameter("passport", worker.getPerson().getPassportID());
-        return new ResponseDTO<WorkerEntity>().setMessage("OK").setList(query.getResultList());
+        List<WorkerEntity> result = query.getResultList();
+        em.getTransaction().commit();
+        return new ResponseDTO<WorkerEntity>().setMessage("OK").setList(result);
     }
 
     public ResponseDTO<Object> deleteById(Long id) {
@@ -110,6 +115,7 @@ public class WorkerEJB {
 
     public ResponseDTO<Object> updateById(Long id, WorkerEntity newWorker) {
         EntityManager em = getEntityManager();
+        em.getTransaction().begin();
         WorkerEntity oldWorker = em.find(WorkerEntity.class, id);
 
         if (oldWorker != null) {
@@ -121,8 +127,10 @@ public class WorkerEJB {
                 }
                 em.merge(newWorker);
                 em.flush();
+                em.getTransaction().commit();
                 return new ResponseDTO<Object>().setMessage("OK");
             } catch (ConstraintViolationException e) {
+                em.getTransaction().rollback();
                 return new ResponseDTO<Object>().setMessage(e.getConstraintViolations().toString() + "\n" + newWorker);
             }
         } else {
@@ -180,12 +188,15 @@ public class WorkerEJB {
     public ResponseDTO<Object> addOrganizationToWorker(Long id, Long organizationID) {
         EntityManager em = getEntityManager();
         try {
+            em.getTransaction().begin();
             OrganizationEntity organization = em.find(OrganizationEntity.class, organizationID);
             WorkerEntity worker = em.find(WorkerEntity.class, id);
 
             worker.setOrganization(organization);
+            em.getTransaction().commit();
             return new ResponseDTO<Object>().setMessage("ОК");
         } catch (PersistenceException e) {
+            em.getTransaction().rollback();
             return new ResponseDTO<Object>().setMessage(e.getMessage());
         }
     }

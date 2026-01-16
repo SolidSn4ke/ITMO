@@ -83,7 +83,9 @@ public class ImportHistoryEJB {
 
     public ResponseDTO<Object> addToDB(ImportHistoryEntity ihe) {
         EntityManager em = getEntityManager();
+        em.getTransaction().begin();
         em.persist(ihe);
+        em.getTransaction().commit();
         return new ResponseDTO<Object>().setMessage("OK");
     }
 
@@ -95,7 +97,9 @@ public class ImportHistoryEJB {
 
     public ResponseDTO<Object> deleteAllFromDB() {
         EntityManager em = getEntityManager();
+        em.getTransaction().begin();
         em.createQuery("DELETE FROM ImportHistoryEntity").executeUpdate();
+        em.getTransaction().commit();
         return new ResponseDTO<Object>().setMessage("OK");
     }
 }
